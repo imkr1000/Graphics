@@ -3,7 +3,7 @@
 
 LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-int main()
+int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prevInstance, _In_ LPWSTR cmdLine, _In_ int cmdShow)
 {
     const UINT width = 1280, height = 720;
     const UINT canvasWidth = width / 80, canvasHeight = height / 80;

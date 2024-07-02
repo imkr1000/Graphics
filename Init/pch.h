@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef _DEBUG
+#pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console")
+#endif
+
 //C
 #include <assert.h>
 #include <Windows.h>

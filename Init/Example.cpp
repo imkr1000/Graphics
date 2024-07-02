@@ -10,7 +10,7 @@ void Example::InitShaders()
 #ifdef _DEBUG
     ComPtr<ID3DBlob> errorBlob;
 
-    if (FAILED(D3DCompileFromFile(L"VertexShader.hlsl", 0, 0, "main", "vs_5_0", 0, 0, &vsBlob, &errorBlob)))
+    if (FAILED(D3DCompileFromFile(L"_Shaders/VertexShader.hlsl", 0, 0, "main", "vs_5_0", 0, 0, &vsBlob, &errorBlob)))
     {
         if (errorBlob.Get())
         {
@@ -20,7 +20,7 @@ void Example::InitShaders()
         assert(false);
     }
 
-    if (FAILED(D3DCompileFromFile(L"PixelShader.hlsl", 0, 0, "main", "ps_5_0", 0, 0, &psBlob, &errorBlob)))
+    if (FAILED(D3DCompileFromFile(L"_Shaders/PixelShader.hlsl", 0, 0, "main", "ps_5_0", 0, 0, &psBlob, &errorBlob)))
     {
         if (errorBlob.Get())
         {
