@@ -11,7 +11,16 @@
     <ClInclude Include="ReadData.h" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="_Shaders\PixelShader.hlsl" />
-    <FxCompile Include="_Shaders\VertexShader.hlsl" />
+    <FxCompile Include="_Shaders\PixelShader.hlsl">
+      <Filter>_Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="_Shaders\VertexShader.hlsl">
+      <Filter>_Shaders</Filter>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="_Shaders">
+      <UniqueIdentifier>{18fea5cf-2d5e-45fb-8b9a-28ba3d8ade23}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>
