@@ -105,7 +105,7 @@ namespace DX
         if (!inFile)
             throw std::runtime_error("ReadData");
 
-        D3DCreateBlob(len, blob);
+        D3DCreateBlob(size_t(len), blob);
         
         inFile.seekg(0, std::ios::beg);
         if (!inFile)
