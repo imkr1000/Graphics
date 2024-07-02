@@ -1,0 +1,8 @@
+Package: directxtk
+Version: 2024-02-21
+Depends: directxmath, vcpkg-cmake:x64-windows, vcpkg-cmake-config:x64-windows
+Architecture: x86-windows
+Multi-Arch: same
+Abi: 6ba02c488da4a0658960e2c3d28d3cbeeb4c01a2de4c2376da38ce6c625f3213
+Description: A collection of helper classes for writing DirectX 11.x code in C++.
+Status: install ok installed

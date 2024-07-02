@@ -1,0 +1,65 @@
+Package: vcpkg-cmake-config
+Version: 2022-02-06
+Port-Version: 1
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 09b58688b4b5d5409b6037dc82b7bc66820a397add3ae2c7ea4c703819b5783c
+Status: install ok installed
+
+Package: vcpkg-cmake
+Version: 2023-05-04
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 22352fe4ee22280be3a1481b1a7e6d0cb45648693727f0a9ad264547d2ab9927
+Status: install ok installed
+
+Package: directxmath
+Version: 2024-02-14
+Port-Version: 1
+Depends: vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: d2a52e6b23143eed32506088c7ccfb17080969967a8fd87c298b2a7dff406989
+Description: DirectXMath SIMD C++ math library
+Status: install ok installed
+
+Package: directxtex
+Version: 2024-03-06
+Depends: directxmath, vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 0ef2af3801e2522edaee455c5341b8fa258251ac611d28ae28b1b57f6274ee4a
+Description: DirectXTex texture processing library
+Default-Features: dx11
+Status: install ok installed
+
+Package: directxtex
+Feature: dx11
+Architecture: x64-windows
+Multi-Arch: same
+Description: Build with DirectX11 support
+Status: install ok installed
+
+Package: imgui
+Version: 1.90.2
+Depends: vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: f56050527dcac9da29aca6cfd59bfe50b178305002348dcd457000e92d72ef57
+Description: Bloat-free Immediate Mode Graphical User interface for C++ with minimal dependencies.
+Status: install ok installed
+
+Package: imgui
+Feature: dx11-binding
+Architecture: x64-windows
+Multi-Arch: same
+Description: Make available DirectX11 binding
+Status: install ok installed
+
+Package: imgui
+Feature: win32-binding
+Architecture: x64-windows
+Multi-Arch: same
+Description: Make available Win32 binding
+Status: install ok installed
+
