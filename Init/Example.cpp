@@ -145,18 +145,6 @@ void Example::Initialize(HWND window, UINT width, UINT height, UINT canvasWidth,
 
     CHECK(device->CreateShaderResourceView(canvasTexture.Get(), nullptr, &canvasTextureView));
 
-    // TODO: CreateRTV Error, should check code
-    /*{
-        D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
-        ZeroMemory(&renderTargetViewDesc, sizeof(renderTargetViewDesc));
-        renderTargetViewDesc.Format = textureDesc.Format;
-        renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-        renderTargetViewDesc.Texture2D.MipSlice = 0;
-    
-        HRESULT hr = device->CreateRenderTargetView(canvasTexture.Get(), &renderTargetViewDesc, &canvasRenderTargetView);
-        CHECK(hr);
-    }*/
-
     // Create a vertex buffer
     {
         const std::vector<Vertex> vertices =

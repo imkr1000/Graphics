@@ -44,7 +44,6 @@ private:
     ComPtr<ID3D11Buffer> indexBuffer;
     ComPtr<ID3D11Texture2D> canvasTexture;
     ComPtr<ID3D11ShaderResourceView> canvasTextureView;
-    ComPtr<ID3D11RenderTargetView> canvasRenderTargetView;
     ComPtr<ID3D11SamplerState> colorSampler;
 
     UINT indexCount = 0;
