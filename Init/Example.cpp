@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "Example.h"
 
+#include <omp.h>
+
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 #define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -63,6 +65,155 @@ Vector4& Image::GetPixel(int x, int y)
     return pixels[x + width * y];
 }
 
+void Image::BoxBlur5()
+{
+    std::vector<Vector4> pixelsBuffer(pixels.size()); // 사본 복사
+
+    /*
+    * Separable convolution
+    * 한 번에 2차원 Kernel을 적용하는 대신에 1차원 Kernel을 두 번 적용
+    * 이해하기 쉽고 효율적이다.
+    */
+
+    // 가로 방향 (x 방향)
+#pragma omp parallel for
+    for (int j = 0; j < height; ++j)
+    {
+        for (int i = 0; i < width; ++i)
+        {
+            const int idx = width * j + i;
+
+            float r = 0.0f, g = 0.0f, b = 0.0f;
+
+            for (int k = 0; k < 5; ++k)
+            {
+                Vector4 neighborColor = GetPixel(i + k - 2, j);
+
+                r += neighborColor.x;
+                g += neighborColor.y;
+                b += neighborColor.z;
+            }
+
+            // 주변 픽셀들의 색을 평균내어서 (i, j)에 있는 픽셀의 색을 변경
+            // this->pixels로부터 읽어온 값들을 평균내어서 pixelsBuffer의 값들을 바꾸기
+            pixelsBuffer[idx].x = r * 0.2f;
+            pixelsBuffer[idx].y = g * 0.2f;
+            pixelsBuffer[idx].z = b * 0.2f;
+        }
+    }
+
+    // Swap
+    std::swap(this->pixels, pixelsBuffer);
+
+    //return; // 여기까지 구현하고 테스트
+
+    // 세로 방향 (y 방향)
+#pragma omp parallel for
+    for (int j = 0; j < height; j++)
+    {
+        for (int i = 0; i < width; i++)
+        {
+            const int idx = width * j + i;
+
+            float r = 0.0f, g = 0.0f, b = 0.0f;
+
+            for (int k = 0; k < 5; ++k)
+            {
+                Vector4 neighborColor = GetPixel(i, j + k - 2);
+
+                r += neighborColor.x;
+                g += neighborColor.y;
+                b += neighborColor.z;
+            }
+
+            // 주변 픽셀들의 색을 평균내어서 (i, j)에 있는 픽셀의 색을 변경
+            // this->pixels로부터 읽어온 값들을 평균내어서 pixelsBuffer의 값들을 바꾸기
+            pixelsBuffer[idx].x = r * 0.2f;
+            pixelsBuffer[idx].y = g * 0.2f;
+            pixelsBuffer[idx].z = b * 0.2f;
+        }
+    }
+
+    // Swap
+    std::swap(this->pixels, pixelsBuffer);
+}
+
+void Image::GaussianBlur5()
+{
+    std::vector<Vector4> pixelsBuffer(this->pixels.size());
+
+    /*
+    * 참고자료
+    * https://en.wikipedia.org/wiki/Gaussian_filter
+    * https://followtutorials.com/2013/03/gaussian-blurring-using-separable-kernel-in-c.html
+    */
+    const float weights[5] = { 0.0545f, 0.2442f, 0.4026f, 0.2442f, 0.0545f };
+
+    // 가로 방향 (x 방향)
+#pragma omp parallel for
+    for (int j = 0; j < this->height; j++)
+    {
+        for (int i = 0; i < this->width; i++)
+        {
+            const int idx = width * j + i;
+
+            float r = 0.0f, g = 0.0f, b = 0.0f;
+
+            for (int k = 0; k < 5; ++k)
+            {
+                Vector4 neighborColor = GetPixel(i + k - 2, j);
+
+                r += neighborColor.x * weights[k];
+                g += neighborColor.y * weights[k];
+                b += neighborColor.z * weights[k];
+            }
+
+            // 주변 픽셀들의 색을 평균내어서 (i, j)에 있는 픽셀의 색을 변경
+            // this->pixels로부터 읽어온 값들을 평균내어서 pixelsBuffer의 값들을 바꾸기
+            pixelsBuffer[idx].x = r;
+            pixelsBuffer[idx].y = g;
+            pixelsBuffer[idx].z = b;
+        }
+    }
+
+    // Swap
+    std::swap(this->pixels, pixelsBuffer);
+
+    // 세로 방향 (y 방향)
+#pragma omp parallel for
+    for (int j = 0; j < this->height; j++)
+    {
+        for (int i = 0; i < this->width; i++)
+        {
+            const int idx = width * j + i;
+
+            float r = 0.0f, g = 0.0f, b = 0.0f;
+
+            for (int k = 0; k < 5; ++k)
+            {
+                Vector4 neighborColor = GetPixel(i, j + k - 2);
+
+                r += neighborColor.x * weights[k];
+                g += neighborColor.y * weights[k];
+                b += neighborColor.z * weights[k];
+            }
+
+            // 주변 픽셀들의 색을 평균내어서 (i, j)에 있는 픽셀의 색을 변경
+            // this->pixels로부터 읽어온 값들을 평균내어서 pixelsBuffer의 값들을 바꾸기
+            pixelsBuffer[idx].x = r;
+            pixelsBuffer[idx].y = g;
+            pixelsBuffer[idx].z = b;
+        }
+    }
+
+    // Swap
+    std::swap(this->pixels, pixelsBuffer);
+}
+
+void Image::Bloom(float theta, int numRepeat, float weight)
+{
+}
+
 Example::Example(HWND window, UINT width, UINT height)
 {
     // 이미지 읽어들이기
@@ -111,8 +262,8 @@ Example::Example(HWND window, UINT width, UINT height)
     //for(int i = 0; i < 100; i++)
     //	image.BoxBlur5();
 
-    //for (int i = 0; i < 100; i++)
-    //	image.GaussianBlur5();
+    for (int i = 0; i < 100; i++)
+    	image.GaussianBlur5();
 
     const auto elapsedTime = std::chrono::high_resolution_clock::now() - startTime;
 
@@ -334,7 +485,7 @@ void Example::Update()
     // TODO2: 이중 for문 구조로 바꾸기
     // TODO3: 왼쪽 절반 어둡게, 오른쪽 절반 밝게
     // TODO4: 4등분 해서 어둡게, 밝게 만들어보기
-    for (int j = 0; j < image.GetHeight(); ++j)
+    /*for (int j = 0; j < image.GetHeight(); ++j)
     {
         for (int i = 0; i < image.GetWidth(); ++i)
         {
@@ -353,7 +504,7 @@ void Example::Update()
                 pixels[idx].z = std::clamp(pixels[idx].z * 1.01f, 0.0f, 1.0f);
             }
         }
-    }
+    }*/
     
 
     // Update texture buffer

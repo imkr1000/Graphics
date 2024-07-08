@@ -14,6 +14,11 @@ public:
     Vector4& GetPixel(int x, int y);
 
 public:
+    void BoxBlur5();
+    void GaussianBlur5();
+    void Bloom(float theta, int numRepeat, float weight = 1.0f);
+
+public:
     int GetWidth() const { return width; }
     int GetHeight() const { return height; }
     std::vector<Vector4>& GetPixels() { return pixels; }
