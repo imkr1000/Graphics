@@ -1,6 +1,128 @@
 #include "pch.h"
 #include "Example.h"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include <stb_image_write.h>
+
+// std::clamp (C++17)
+
+void Image::ReadFromFile(const char* fileName)
+{
+    /*
+    vcpkg install stb:x64-windows
+    프로젝트 설정에서 _CRT_SECURE_NO_WARNINGS 추가 ('sprintf' in stb_image_write.h)
+    #define STB_IMAGE_IMPLEMENTATION
+    #include <stb_image.h>
+    #define STB_IMAGE_WRITE_IMPLEMENTATION
+    #include <stb_image_write.h>
+    */
+
+    unsigned char* img = stbi_load(fileName, &width, &height, &channels, 0);
+
+    if (width)
+        std::cout << width << " " << height << " " << channels << '\n';
+    else
+        std::cout << "Error: reading " << fileName << " failed." << '\n';
+
+    // channels가 3(RGB) 또는 4(RGBA)인 경우만 가정
+    // unsigned char(0에서 255)을 4채널 float(0.0f에서 1.0f)로 변환
+    pixels.resize(width * height);
+    for (int i = 0; i < width * height; ++i)
+    {
+        pixels[i].x = img[i * channels] / 255.0f;
+        pixels[i].y = img[i * channels + 1] / 255.0f;
+        pixels[i].z = img[i * channels + 2] / 255.0f;
+        pixels[i].w = 1.0f;
+    }
+
+    SAFE_DELETE_ARRAY(img);
+}
+
+void Image::WritePNG(const char* fileName)
+{
+    // 32bit에서 8bit로 변환 후에 저장
+
+    std::vector<unsigned char> img(width * height * channels, 0);
+    for (int i = 0; i < width * height; ++i)
+    {
+        img[i * channels] = uint8_t(pixels[i].x * 255.0f); // v[0]이 0.0f 이상 1.0f 이하 가정
+        img[i * channels + 1] = uint8_t(pixels[i].y * 255.0f);
+        img[i * channels + 2] = uint8_t(pixels[i].z * 255.0f);
+    }
+
+    stbi_write_png(fileName, width, height, channels, img.data(), width * channels);
+}
+
+Vector4& Image::GetPixel(int x, int y)
+{
+    x = std::clamp(x, 0, width - 1);
+    y = std::clamp(y, 0, height - 1);
+    
+    return pixels[x + width * y];
+}
+
+Example::Example(HWND window, UINT width, UINT height)
+{
+    // 이미지 읽어들이기
+    image.ReadFromFile("CityImage.jpg");
+
+    // 시간 측정
+    const auto startTime = std::chrono::high_resolution_clock::now();
+
+    auto& pixels = image.GetPixels();
+
+    // TODO: 이미지를 밝게 만들어보자
+    //for (int i = 0; i < image.GetWidth() * image.GetHeight(); ++i)
+    //{
+    //    pixels[i].x = std::clamp(pixels[i].x * 1.5f, 0.0f, 1.0f);
+    //    pixels[i].y = std::clamp(pixels[i].y * 1.5f, 0.0f, 1.0f);
+    //    pixels[i].z = std::clamp(pixels[i].z * 1.5f, 0.0f, 1.0f);
+    //}
+    // TODO2: 이미지를 어둡게 만들어보자
+    //for (int i = 0; i < image.GetWidth() * image.GetHeight(); ++i)
+    //{
+    //    pixels[i].x = std::clamp(pixels[i].x * 0.5f, 0.0f, 1.0f);
+    //    pixels[i].y = std::clamp(pixels[i].y * 0.5f, 0.0f, 1.0f);
+    //    pixels[i].z = std::clamp(pixels[i].z * 0.5f, 0.0f, 1.0f);
+    //}
+
+    // TODO: 밝기의 한계를 제거해보자(픽셀 색상 값 중 아예 0인 값이 있어서 밝아질 때 잔상처럼 남는다)
+    for (int i = 0; i < image.GetWidth() * image.GetHeight(); ++i)
+    {
+        pixels[i].x += 1e-2f;
+        pixels[i].y += 1e-2f;
+        pixels[i].z += 1e-2f;
+    }
+
+    /*
+    * 이미지 컨벌루션 참고 자료들
+    * https://en.wikipedia.org/wiki/Kernel_(image_processing) // 마지막 괄호 주의
+    * https://en.wikipedia.org/wiki/Convolution
+    * https://medium.com/@bdhuma/6-basic-things-to-know-about-convolution-daef5e1bc411
+    * https://towardsdatascience.com/intuitively-understanding-convolutions-for-deep-learning-1f6f42faee1
+    */
+
+    /*
+    * 여기서 사용하는 방법은 이해하기 더 쉬운 Separable convolution 입니다.
+    */
+
+    //for(int i = 0; i < 100; i++)
+    //	image.BoxBlur5();
+
+    //for (int i = 0; i < 100; i++)
+    //	image.GaussianBlur5();
+
+    const auto elapsedTime = std::chrono::high_resolution_clock::now() - startTime;
+
+    std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(elapsedTime).count() / 1000.0 << " sec" << '\n';
+
+    image.WritePNG("result.png");
+
+    Initialize(window, width, height, image.GetWidth(), image.GetHeight());
+}
+
 // https://docs.microsoft.com/en-us/windows/win32/direct3d11/how-to--compile-a-shader
 void Example::InitShaders()
 {
@@ -199,26 +321,40 @@ void Example::Initialize(HWND window, UINT width, UINT height, UINT canvasWidth,
 
 void Example::Update()
 {
-    // 프레임 간 대기 시간을 임의로 주고 싶을 때
-    //Sleep(300);
+    auto& pixels = image.GetPixels();
 
-    // 힌트
-    static int i = 0;
+    // TODO: Fade Out(점차 어두워지게) 만들기
+    //for (int i = 0; i < image.GetWidth() * image.GetHeight(); ++i)
+    //{
+    //    pixels[i].x = std::clamp(pixels[i].x * 0.99f, 0.0f, 1.0f);
+    //    pixels[i].y = std::clamp(pixels[i].y * 0.99f, 0.0f, 1.0f);
+    //    pixels[i].z = std::clamp(pixels[i].z * 0.99f, 0.0f, 1.0f);
+    //}
 
-    std::vector<Vector4> pixels(canvasWidth * canvasHeight, backgroundColor);
-    // TODO: 첫 번째 칸부터 마지막 칸까지 빨간색이 이동하고 마지막 칸에서 다시 첫 번째 칸으로 돌아와서 반복하도록 코드 짜볼 것
-    // TODO2: 위와 동일하게 하되 색이 빨->초->파 순으로 계속 바뀌며 반복하도록 코드 짜볼 것
-    std::vector<Vector4> colors{ Vector4(1.0f, 0.0f, 0.0f, 1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f) };
+    // TODO2: 이중 for문 구조로 바꾸기
+    // TODO3: 왼쪽 절반 어둡게, 오른쪽 절반 밝게
+    // TODO4: 4등분 해서 어둡게, 밝게 만들어보기
+    for (int j = 0; j < image.GetHeight(); ++j)
+    {
+        for (int i = 0; i < image.GetWidth(); ++i)
+        {
+            const int idx = image.GetWidth() * j + i;
+
+            if (i < image.GetWidth() / 2)
+            {
+                pixels[idx].x = std::clamp(pixels[idx].x * 0.99f, 0.0f, 1.0f);
+                pixels[idx].y = std::clamp(pixels[idx].y * 0.99f, 0.0f, 1.0f);
+                pixels[idx].z = std::clamp(pixels[idx].z * 0.99f, 0.0f, 1.0f);
+            }
+            else
+            {
+                pixels[idx].x = std::clamp(pixels[idx].x * 1.01f, 0.0f, 1.0f);
+                pixels[idx].y = std::clamp(pixels[idx].y * 1.01f, 0.0f, 1.0f);
+                pixels[idx].z = std::clamp(pixels[idx].z * 1.01f, 0.0f, 1.0f);
+            }
+        }
+    }
     
-    pixels[i++] = colors[i % colors.size()];
-    //조건(삼항) 연산자 사용법
-    //pixels[i] = i % 3 == 0 ? Vector4(1.0f, 0.0f, 0.0f, 1.0f) : i % 3 == 1 ? Vector4(0.0f, 1.0f, 0.0f, 1.0f) : Vector4(0.0f, 0.0f, 1.0f, 1.0f);
-    i %= pixels.size();
-    //pixels[0 + canvasWidth * 0] = Vector4{ 1.0f, 0.0f, 0.0f, 1.0f };
-    //pixels[1 + canvasWidth * 0] = Vector4{ 1.0f, 1.0f, 0.0f, 1.0f };
-    // TODO: 세 번째 칸에 파란색 픽셀이 나오도록 코드 짜볼 것
-    //그래픽의 근본 시작점은 픽셀의 색상을 결정하는 것
-    //pixels[2 + canvasWidth * 0] = Vector4{ 0.0f, 0.0f, 1.0f, 1.0f };
 
     // Update texture buffer
     D3D11_MAPPED_SUBRESOURCE mappedSubresource;

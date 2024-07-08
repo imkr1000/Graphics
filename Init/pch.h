@@ -13,6 +13,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <algorithm>
+#include <chrono>
 
 //D3D
 #include <d3d11.h>
@@ -38,3 +40,6 @@ using namespace SimpleMath;
 
 //Macros
 #define CHECK(hr) { if (FAILED(hr)) std::cout << "Error Code : 0x" << std::hex << hr << " - " << std::system_category().message(hr) << '\n'; assert(SUCCEEDED(hr)); }
+
+#define SAFE_DELETE(p) { if (p) { delete p; p = nullptr; } }
+#define SAFE_DELETE_ARRAY(p) { if (p) { delete[] p; p = nullptr; } }

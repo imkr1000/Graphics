@@ -6,13 +6,27 @@ struct Vertex
     Vector2 uv;
 };
 
+class Image
+{
+public:
+    void ReadFromFile(const char* fileName);
+    void WritePNG(const char* fileName);
+    Vector4& GetPixel(int x, int y);
+
+public:
+    int GetWidth() const { return width; }
+    int GetHeight() const { return height; }
+    std::vector<Vector4>& GetPixels() { return pixels; }
+
+private:
+    int width = 0, height = 0, channels = 0;
+    std::vector<Vector4> pixels; // 이미지 처리할 때는 색을 float에 저장하는 것이 더 정밀
+};
+
 class Example
 {
 public:
-    Example(HWND window, UINT width, UINT height, UINT canvasWidth, UINT canvasHeight)
-    {
-        Initialize(window, width, height, canvasWidth, canvasHeight);
-    }
+    Example(HWND window, UINT width, UINT height);
 
     void InitShaders();
 
@@ -52,4 +66,6 @@ private:
     Vector4 backgroundColor = { 0.8f, 0.8f, 0.8f, 1.0f };
     // SeaGreen Color Test
     //Vector4 backgroundColor = Vector4(46.0f, 139.0f, 87.0f, 255.0f) / 255.0f;
+
+    Image image;
 };
