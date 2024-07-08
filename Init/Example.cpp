@@ -212,6 +212,45 @@ void Image::GaussianBlur5()
 
 void Image::Bloom(float theta, int numRepeat, float weight)
 {
+    //https://learnopengl.com/Advanced-Lighting/Bloom
+
+    const std::vector<Vector4> pixelsBackup = pixels;// 메모리 내용물까지 모두 복사
+
+    /* Brightness가 th 보다 작은 픽셀들을 모두 검은색으로 바꾸기
+    * https://en.wikipedia.org/wiki/Relative_luminance
+    * Relative Luminance Y = 0.2126*R + 0.7152*G + 0.0722*B
+    */
+    for (int j = 0; j < height; j++)
+        for (int i = 0; i < width; i++)
+        {
+            Vector4& pixel = GetPixel(i, j);
+
+            const float relativeLuminance = pixel.x * 0.2126f + pixel.y * 0.7152f + pixel.z * 0.0722f;
+
+            if (relativeLuminance < theta)
+            {
+                pixel = Vector4();
+                pixel.w = 1.0f;
+            }
+        }
+
+    // 여기서 Blur하지 않고 결과 확인
+
+    // 밝은 부분만 Blur 
+    for (int i = 0; i < numRepeat; i++)
+    {
+        GaussianBlur5();
+    }
+
+    // 여기서 또 한 번 결과 확인
+
+    // 밝은 부분만 Blur한 것과 원본 이미지를 더하기 (밝은 부분 Blur에 weight 곱해서 강도 조절)
+    for (int i = 0; i < pixelsBackup.size(); i++)
+    {
+        pixels[i].x = std::clamp(pixels[i].x * weight + pixelsBackup[i].x, 0.0f, 1.0f);
+        pixels[i].y = std::clamp(pixels[i].y * weight + pixelsBackup[i].y, 0.0f, 1.0f);
+        pixels[i].z = std::clamp(pixels[i].z * weight + pixelsBackup[i].z, 0.0f, 1.0f);
+    }
 }
 
 Example::Example(HWND window, UINT width, UINT height)
@@ -262,8 +301,10 @@ Example::Example(HWND window, UINT width, UINT height)
     //for(int i = 0; i < 100; i++)
     //	image.BoxBlur5();
 
-    for (int i = 0; i < 100; i++)
-    	image.GaussianBlur5();
+    //for (int i = 0; i < 100; i++)
+    //	image.GaussianBlur5();
+
+    image.Bloom(0.3f, 100, 1.0f);
 
     const auto elapsedTime = std::chrono::high_resolution_clock::now() - startTime;
 
