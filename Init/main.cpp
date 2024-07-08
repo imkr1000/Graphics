@@ -50,9 +50,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prevInstance, 
 
     auto example = std::make_unique<Example>(hwnd, width, height, canvasWidth, canvasHeight);
 
-    using namespace DirectX;
-    using namespace SimpleMath;
-
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
