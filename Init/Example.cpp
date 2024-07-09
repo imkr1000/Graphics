@@ -83,13 +83,14 @@ void Image::BoxBlur5()
     {
         for (int i = 0; i < width; ++i)
         {
+            // TODO 1: 가로 방향으로 5개 픽셀에 1차원 Kernel 적용해보기
             const int idx = width * j + i;
 
             float r = 0.0f, g = 0.0f, b = 0.0f;
 
             for (int k = 0; k < 5; ++k)
             {
-                Color neighborColor = GetPixel(i + k - 2, j);
+                const Color& neighborColor = GetPixel(i + k - 2, j);
 
                 r += neighborColor.x;
                 g += neighborColor.y;
@@ -115,13 +116,14 @@ void Image::BoxBlur5()
     {
         for (int i = 0; i < width; i++)
         {
+            // TODO 2: 세로 방향으로 5개 픽셀에 1차원 Kernel 적용해보기
             const int idx = width * j + i;
 
             float r = 0.0f, g = 0.0f, b = 0.0f;
 
             for (int k = 0; k < 5; ++k)
             {
-                Color neighborColor = GetPixel(i, j + k - 2);
+                const Color& neighborColor = GetPixel(i, j + k - 2);
 
                 r += neighborColor.x;
                 g += neighborColor.y;
@@ -289,6 +291,21 @@ Example::Example(HWND window, UINT width, UINT height)
     * https://en.wikipedia.org/wiki/Convolution
     * https://medium.com/@bdhuma/6-basic-things-to-know-about-convolution-daef5e1bc411
     * https://towardsdatascience.com/intuitively-understanding-convolutions-for-deep-learning-1f6f42faee1
+    */
+    /*
+    Box blur vs Gaussian blur
+    더 큰 커널을 사용할 수록 이미지가 더 흐려진다
+    box blur 커널의 숫자 9개 전부 1 (9로 나눠 평균을 낸다)
+    gaussian blur 3 x 3
+    1 2 1
+    2 4 2
+    1 2 1
+    16으로 나눈다(16은 수를 다 더한 값, 전부 다 합쳐 평균을 낸다)
+    5 x 5는 256으로 나눔
+    */
+    /*
+    Convolution(중첩적분) - 커널을 이미지의 모든 픽셀에 적용하는 과정
+    해당하는 픽셀과 주변 픽셀들의 값을 커널의 각 자리와 곱해서 전부 더한 값이 해당 픽셀의 값이 된다
     */
 
     /*
@@ -521,6 +538,9 @@ void Example::Initialize(HWND window, UINT width, UINT height, UINT canvasWidth,
 
 void Example::Update()
 {
+    // 점차 흐려지는 애니메이션
+    //image.GaussianBlur5();
+
     auto& pixels = image.GetPixels();
 
     // Update texture buffer
