@@ -55,7 +55,7 @@ void Image::WritePNG(const char* fileName)
     stbi_write_png(fileName, width, height, channels, img.data(), width * channels);
 }
 
-Vector4& Image::GetPixel(int x, int y)
+Color& Image::GetPixel(int x, int y)
 {
     x = std::clamp(x, 0, width - 1);
     y = std::clamp(y, 0, height - 1);
