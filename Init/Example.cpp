@@ -205,20 +205,20 @@ void Example::Update()
     // 힌트
     static int i = 0;
 
-    std::vector<Vector4> pixels(canvasWidth * canvasHeight, backgroundColor);
+    std::vector<Color> pixels(canvasWidth * canvasHeight, backgroundColor);
     // TODO: 첫 번째 칸부터 마지막 칸까지 빨간색이 이동하고 마지막 칸에서 다시 첫 번째 칸으로 돌아와서 반복하도록 코드 짜볼 것
     // TODO2: 위와 동일하게 하되 색이 빨->초->파 순으로 계속 바뀌며 반복하도록 코드 짜볼 것
-    std::vector<Vector4> colors{ Vector4(1.0f, 0.0f, 0.0f, 1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f) };
+    std::vector<Color> colors{ Color(1.0f, 0.0f, 0.0f, 1.0f), Color(0.0f, 1.0f, 0.0f, 1.0f), Color(0.0f, 0.0f, 1.0f, 1.0f) };
     
     pixels[i++] = colors[i % colors.size()];
     //조건(삼항) 연산자 사용법
-    //pixels[i] = i % 3 == 0 ? Vector4(1.0f, 0.0f, 0.0f, 1.0f) : i % 3 == 1 ? Vector4(0.0f, 1.0f, 0.0f, 1.0f) : Vector4(0.0f, 0.0f, 1.0f, 1.0f);
+    //pixels[i] = i % 3 == 0 ? Color(1.0f, 0.0f, 0.0f, 1.0f) : i % 3 == 1 ? Color(0.0f, 1.0f, 0.0f, 1.0f) : Color(0.0f, 0.0f, 1.0f, 1.0f);
     i %= pixels.size();
-    //pixels[0 + canvasWidth * 0] = Vector4{ 1.0f, 0.0f, 0.0f, 1.0f };
-    //pixels[1 + canvasWidth * 0] = Vector4{ 1.0f, 1.0f, 0.0f, 1.0f };
+    //pixels[0 + canvasWidth * 0] = Color{ 1.0f, 0.0f, 0.0f, 1.0f };
+    //pixels[1 + canvasWidth * 0] = Color{ 1.0f, 1.0f, 0.0f, 1.0f };
     // TODO: 세 번째 칸에 파란색 픽셀이 나오도록 코드 짜볼 것
     //그래픽의 근본 시작점은 픽셀의 색상을 결정하는 것
-    //pixels[2 + canvasWidth * 0] = Vector4{ 0.0f, 0.0f, 1.0f, 1.0f };
+    //pixels[2 + canvasWidth * 0] = Color{ 0.0f, 0.0f, 1.0f, 1.0f };
 
     // Update texture buffer
     D3D11_MAPPED_SUBRESOURCE mappedSubresource;

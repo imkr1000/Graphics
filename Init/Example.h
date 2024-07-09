@@ -27,8 +27,8 @@ public:
     ID3D11Device* GetDevice() const { return device.Get(); }
     ID3D11DeviceContext* GetDeviceContext() const { return deviceContext.Get(); }
     
-    Vector4 GetBackgroundColor() const { return backgroundColor; }
-    Vector4& GetBackgroundColor() { return backgroundColor; }
+    Color GetBackgroundColor() const { return backgroundColor; }
+    Color& GetBackgroundColor() { return backgroundColor; }
 
 private:
     ComPtr<ID3D11Device> device;
@@ -49,7 +49,7 @@ private:
     UINT indexCount = 0;
 
     UINT canvasWidth = 0, canvasHeight = 0;
-    Vector4 backgroundColor = { 0.8f, 0.8f, 0.8f, 1.0f };
+    Color backgroundColor = { 0.8f, 0.8f, 0.8f, 1.0f };
     // SeaGreen Color Test
-    //Vector4 backgroundColor = Vector4(46.0f, 139.0f, 87.0f, 255.0f) / 255.0f;
+    //Color backgroundColor = Color(46.0f, 139.0f, 87.0f, 255.0f) / 255.0f;
 };
