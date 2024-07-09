@@ -263,21 +263,6 @@ Example::Example(HWND window, UINT width, UINT height)
 
     auto& pixels = image.GetPixels();
 
-    // TODO: 이미지를 밝게 만들어보자
-    //for (int i = 0; i < image.GetWidth() * image.GetHeight(); ++i)
-    //{
-    //    pixels[i].x = std::clamp(pixels[i].x * 1.5f, 0.0f, 1.0f);
-    //    pixels[i].y = std::clamp(pixels[i].y * 1.5f, 0.0f, 1.0f);
-    //    pixels[i].z = std::clamp(pixels[i].z * 1.5f, 0.0f, 1.0f);
-    //}
-    // TODO2: 이미지를 어둡게 만들어보자
-    //for (int i = 0; i < image.GetWidth() * image.GetHeight(); ++i)
-    //{
-    //    pixels[i].x = std::clamp(pixels[i].x * 0.5f, 0.0f, 1.0f);
-    //    pixels[i].y = std::clamp(pixels[i].y * 0.5f, 0.0f, 1.0f);
-    //    pixels[i].z = std::clamp(pixels[i].z * 0.5f, 0.0f, 1.0f);
-    //}
-
     // TODO: 밝기의 한계를 제거해보자(픽셀 색상 값 중 아예 0인 값이 있어서 밝아질 때 잔상처럼 남는다)
     for (int i = 0; i < image.GetWidth() * image.GetHeight(); ++i)
     {
@@ -514,39 +499,6 @@ void Example::Initialize(HWND window, UINT width, UINT height, UINT canvasWidth,
 void Example::Update()
 {
     auto& pixels = image.GetPixels();
-
-    // TODO: Fade Out(점차 어두워지게) 만들기
-    //for (int i = 0; i < image.GetWidth() * image.GetHeight(); ++i)
-    //{
-    //    pixels[i].x = std::clamp(pixels[i].x * 0.99f, 0.0f, 1.0f);
-    //    pixels[i].y = std::clamp(pixels[i].y * 0.99f, 0.0f, 1.0f);
-    //    pixels[i].z = std::clamp(pixels[i].z * 0.99f, 0.0f, 1.0f);
-    //}
-
-    // TODO2: 이중 for문 구조로 바꾸기
-    // TODO3: 왼쪽 절반 어둡게, 오른쪽 절반 밝게
-    // TODO4: 4등분 해서 어둡게, 밝게 만들어보기
-    /*for (int j = 0; j < image.GetHeight(); ++j)
-    {
-        for (int i = 0; i < image.GetWidth(); ++i)
-        {
-            const int idx = image.GetWidth() * j + i;
-
-            if (i < image.GetWidth() / 2)
-            {
-                pixels[idx].x = std::clamp(pixels[idx].x * 0.99f, 0.0f, 1.0f);
-                pixels[idx].y = std::clamp(pixels[idx].y * 0.99f, 0.0f, 1.0f);
-                pixels[idx].z = std::clamp(pixels[idx].z * 0.99f, 0.0f, 1.0f);
-            }
-            else
-            {
-                pixels[idx].x = std::clamp(pixels[idx].x * 1.01f, 0.0f, 1.0f);
-                pixels[idx].y = std::clamp(pixels[idx].y * 1.01f, 0.0f, 1.0f);
-                pixels[idx].z = std::clamp(pixels[idx].z * 1.01f, 0.0f, 1.0f);
-            }
-        }
-    }*/
-    
 
     // Update texture buffer
     D3D11_MAPPED_SUBRESOURCE mappedSubresource;
