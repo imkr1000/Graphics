@@ -10,6 +10,8 @@
 
 // std::clamp (C++17)
 
+//std::vector<std::mutex> mutexes(std::thread::hardware_concurrency());
+
 void Image::ReadFromFile(const char* fileName)
 {
     /*
@@ -212,6 +214,16 @@ void Image::GaussianBlur5()
 
 void Image::Bloom(float theta, int numRepeat, float weight)
 {
+    //std::unique_lock<std::mutex> lock1(mutexes[0], std::defer_lock);
+    //std::unique_lock<std::mutex> lock2(mutexes[1], std::defer_lock);
+    //std::unique_lock<std::mutex> lock3(mutexes[2], std::defer_lock);
+    //std::unique_lock<std::mutex> lock4(mutexes[3], std::defer_lock);
+    ////std::vector<std::unique_lock<std::mutex>> locks(mutexes.size());
+    //
+    ////for (size_t i = 0; i < locks.size(); ++i)
+    ////    locks[i] = std::unique_lock<std::mutex>(mutexes[i], std::defer_lock);
+    //
+    //std::lock(lock1, lock2, lock3, lock4);
     //https://learnopengl.com/Advanced-Lighting/Bloom
 
     const std::vector<Color> pixelsBackup = pixels;// 메모리 내용물까지 모두 복사
@@ -256,7 +268,7 @@ void Image::Bloom(float theta, int numRepeat, float weight)
 Example::Example(HWND window, UINT width, UINT height)
 {
     // 이미지 읽어들이기
-    image.ReadFromFile("CityImage.jpg");
+    image.ReadFromFile("_Textures/CityImage.jpg");
 
     // 시간 측정
     const auto startTime = std::chrono::high_resolution_clock::now();
@@ -288,6 +300,17 @@ Example::Example(HWND window, UINT width, UINT height)
 
     //for (int i = 0; i < 100; i++)
     //	image.GaussianBlur5();
+
+    /*std::vector<std::thread> threads;
+    threads.reserve(std::thread::hardware_concurrency());
+
+    size_t numReapeatPerThread = 100 / threads.capacity();
+
+    for (size_t i = 0; i < threads.capacity(); ++i)
+        threads.emplace_back(std::thread(&Image::Bloom, &image, 0.3f, (int)numReapeatPerThread, 1.0f));
+
+    for (auto& thread : threads)
+        thread.join();*/
 
     image.Bloom(0.3f, 100, 1.0f);
 
