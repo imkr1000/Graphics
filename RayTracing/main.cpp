@@ -6,6 +6,7 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prevInstance, _In_ LPWSTR cmdLine, _In_ int cmdShow)
 {
     const UINT width = 1280, height = 720;
+    const UINT canvasWidth = width, canvasHeight = height;
 
     WNDCLASSEX winClass =
     {
@@ -32,7 +33,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prevInstance, 
     HWND hwnd = CreateWindow
     (
         winClass.lpszClassName,
-        L"RayTracing Example",
+        L"Graphics Example",
         WS_OVERLAPPEDWINDOW,
         100,                            // À©µµ¿ì ÁÂÃø »ó´ÜÀÇ x ÁÂÇ¥
         100,                            // À©µµ¿ì ÁÂÃø »ó´ÜÀÇ y ÁÂÇ¥
@@ -72,20 +73,19 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prevInstance, 
         }
         else
         {
-            ImGui_ImplDX11_NewFrame();
-            ImGui_ImplWin32_NewFrame();
-            ImGui::NewFrame();
-            //ImGui::SliderFloat2("Center", &example->circle1->center.x, 0.0f, float(width - 1.0f));
-            //ImGui::SliderFloat("Radius", &example->circle1->radius, 0.0f, float(width - 1.0f));
-            //example->circle1->radiusSquared = powf(example->circle1->radius, 2);
-            //ImGui::SliderFloat3("RGB", &example->circle1->color.x, 0.0f, 1.0f);
-            ImGui::End();
-            ImGui::Render();
+            // Start the Dear ImGui frame
+            //ImGui_ImplDX11_NewFrame();//TODO: IMGUI »ç¿ë
+            //ImGui_ImplWin32_NewFrame();
+            //ImGui::NewFrame();
+            //ImGui::Begin("Background Color");
+            //ImGui::SliderFloat3("RGB(0.0->1.0)", color, 0.0f, 1.0f);
+            //ImGui::End();
+            //ImGui::Render();
 
             example->Update();
             example->Render();
 
-            ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+            //ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());//TODO: IMGUI »ç¿ë
 
             // switch the back buffer and the front buffer
             example->GetSwapChain()->Present(1, 0);
