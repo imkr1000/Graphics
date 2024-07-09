@@ -57,7 +57,7 @@ void Image::WritePNG(const char* fileName)
     stbi_write_png(fileName, width, height, channels, img.data(), width * channels);
 }
 
-Vector4& Image::GetPixel(int x, int y)
+Color& Image::GetPixel(int x, int y)
 {
     x = std::clamp(x, 0, width - 1);
     y = std::clamp(y, 0, height - 1);
@@ -67,7 +67,7 @@ Vector4& Image::GetPixel(int x, int y)
 
 void Image::BoxBlur5()
 {
-    std::vector<Vector4> pixelsBuffer(pixels.size()); // 사본 복사
+    std::vector<Color> pixelsBuffer(pixels.size()); // 사본 복사
 
     /*
     * Separable convolution
@@ -87,7 +87,7 @@ void Image::BoxBlur5()
 
             for (int k = 0; k < 5; ++k)
             {
-                Vector4 neighborColor = GetPixel(i + k - 2, j);
+                Color neighborColor = GetPixel(i + k - 2, j);
 
                 r += neighborColor.x;
                 g += neighborColor.y;
@@ -119,7 +119,7 @@ void Image::BoxBlur5()
 
             for (int k = 0; k < 5; ++k)
             {
-                Vector4 neighborColor = GetPixel(i, j + k - 2);
+                Color neighborColor = GetPixel(i, j + k - 2);
 
                 r += neighborColor.x;
                 g += neighborColor.y;
@@ -140,7 +140,7 @@ void Image::BoxBlur5()
 
 void Image::GaussianBlur5()
 {
-    std::vector<Vector4> pixelsBuffer(this->pixels.size());
+    std::vector<Color> pixelsBuffer(this->pixels.size());
 
     /*
     * 참고자료
@@ -161,7 +161,7 @@ void Image::GaussianBlur5()
 
             for (int k = 0; k < 5; ++k)
             {
-                Vector4 neighborColor = GetPixel(i + k - 2, j);
+                Color neighborColor = GetPixel(i + k - 2, j);
 
                 r += neighborColor.x * weights[k];
                 g += neighborColor.y * weights[k];
@@ -191,7 +191,7 @@ void Image::GaussianBlur5()
 
             for (int k = 0; k < 5; ++k)
             {
-                Vector4 neighborColor = GetPixel(i, j + k - 2);
+                Color neighborColor = GetPixel(i, j + k - 2);
 
                 r += neighborColor.x * weights[k];
                 g += neighborColor.y * weights[k];
@@ -214,7 +214,7 @@ void Image::Bloom(float theta, int numRepeat, float weight)
 {
     //https://learnopengl.com/Advanced-Lighting/Bloom
 
-    const std::vector<Vector4> pixelsBackup = pixels;// 메모리 내용물까지 모두 복사
+    const std::vector<Color> pixelsBackup = pixels;// 메모리 내용물까지 모두 복사
 
     /* Brightness가 th 보다 작은 픽셀들을 모두 검은색으로 바꾸기
     * https://en.wikipedia.org/wiki/Relative_luminance
@@ -223,13 +223,13 @@ void Image::Bloom(float theta, int numRepeat, float weight)
     for (int j = 0; j < height; j++)
         for (int i = 0; i < width; i++)
         {
-            Vector4& pixel = GetPixel(i, j);
+            Color& pixel = GetPixel(i, j);
 
             const float relativeLuminance = pixel.x * 0.2126f + pixel.y * 0.7152f + pixel.z * 0.0722f;
 
             if (relativeLuminance < theta)
             {
-                pixel = Vector4();
+                pixel = Color();
                 pixel.w = 1.0f;
             }
         }
