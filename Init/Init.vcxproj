@@ -118,6 +118,7 @@
     </FxCompile>
     <PostBuildEvent>
       <Command>xcopy /y /d /s "_Shaders\*.*" "$(Outdir)\_Shaders\"
+xcopy /y /d /s "_Textures\*.*" "$(Outdir)\_Textures\"
 xcopy /y /d "imgui.ini" "$(Outdir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -148,7 +149,8 @@ xcopy /y /d "imgui.ini" "$(Outdir)"</Command>
       </AdditionalIncludeDirectories>
     </FxCompile>
     <PostBuildEvent>
-      <Command>xcopy /y /d "imgui.ini" "$(Outdir)"</Command>
+      <Command>xcopy /y /d /s "_Textures\*.*" "$(Outdir)\_Textures\"
+xcopy /y /d "imgui.ini" "$(Outdir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -176,6 +178,7 @@ xcopy /y /d "imgui.ini" "$(Outdir)"</Command>
     </FxCompile>
     <PostBuildEvent>
       <Command>xcopy /y /d /s "_Shaders\*.*" "$(Outdir)\_Shaders\"
+xcopy /y /d /s "_Textures\*.*" "$(Outdir)\_Textures\"
 xcopy /y /d "imgui.ini" "$(Outdir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -206,7 +209,8 @@ xcopy /y /d "imgui.ini" "$(Outdir)"</Command>
       </AdditionalIncludeDirectories>
     </FxCompile>
     <PostBuildEvent>
-      <Command>xcopy /y /d "imgui.ini" "$(Outdir)"</Command>
+      <Command>xcopy /y /d /s "_Textures\*.*" "$(Outdir)\_Textures\"
+xcopy /y /d "imgui.ini" "$(Outdir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

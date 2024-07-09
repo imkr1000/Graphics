@@ -66,7 +66,7 @@ Color& Image::GetPixel(int x, int y)
 Example::Example(HWND window, UINT width, UINT height)
 {
     // 이미지 읽어들이기
-    image.ReadFromFile("CityImage.jpg");
+    image.ReadFromFile("_Textures/CityImage.jpg");
 
     // 시간 측정
     const auto startTime = std::chrono::high_resolution_clock::now();
