@@ -214,7 +214,7 @@ void Image::GaussianBlur5()
     std::swap(this->pixels, pixelsBuffer);
 }
 
-void Image::Bloom(float theta, int numRepeat, float weight)
+void Image::Bloom(float th, int numRepeat, float weight)
 {
     //std::unique_lock<std::mutex> lock1(mutexes[0], std::defer_lock);
     //std::unique_lock<std::mutex> lock2(mutexes[1], std::defer_lock);
@@ -227,6 +227,22 @@ void Image::Bloom(float theta, int numRepeat, float weight)
     //
     //std::lock(lock1, lock2, lock3, lock4);
     //https://learnopengl.com/Advanced-Lighting/Bloom
+
+    /*
+    Bloom = 원본 이미지 + 가우시안 블러 적용한 이미지
+
+    Bloom의 첫 단계
+    0. 원본 이미지를 더해야 하기 때문에 백업해둔다.
+
+    1. 밝은 픽셀들은 그대로 두고 어두운 픽셀들은 아예 검게 만든다
+    밝은 픽셀과 어두운 픽셀의 기준은 우리가 정한 기준치 th를 사용한다
+    RelativeLuminance가 th보다 작으면 전부 어둡게 만들고 아니면 그냥 둔다
+
+    2. 그대로 뒀던 픽셀들만 가우시안 블러를 적용한다.
+
+    3. 백업해둔 원본 이미지 + 밝은 부분만 가우시안 블러 적용한 이미지를 픽셀의 색으로 넣는다.
+    이 때 밝은 부분만 가우시안 블러 적용한 이미지에 가중치 weight를 곱해서 강도(밝기)를 조절한다.
+    */
 
     const std::vector<Color> pixelsBackup = pixels;// 메모리 내용물까지 모두 복사
 
@@ -241,7 +257,7 @@ void Image::Bloom(float theta, int numRepeat, float weight)
 
             const float relativeLuminance = pixel.x * 0.2126f + pixel.y * 0.7152f + pixel.z * 0.0722f;
 
-            if (relativeLuminance < theta)
+            if (relativeLuminance < th)
             {
                 pixel = Color();
                 pixel.w = 1.0f;
