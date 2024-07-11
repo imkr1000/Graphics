@@ -74,18 +74,16 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prevInstance, 
         else
         {
             // Start the Dear ImGui frame
-            //ImGui_ImplDX11_NewFrame();//TODO: IMGUI 사용
-            //ImGui_ImplWin32_NewFrame();
-            //ImGui::NewFrame();
-            //ImGui::Begin("Background Color");
-            //ImGui::SliderFloat3("RGB(0.0->1.0)", color, 0.0f, 1.0f);
-            //ImGui::End();
-            //ImGui::Render();
+            ImGui_ImplDX11_NewFrame();//TODO: IMGUI 사용
+            ImGui_ImplWin32_NewFrame();
+            ImGui::NewFrame();
 
             example->Update();
             example->Render();
 
-            //ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());//TODO: IMGUI 사용
+            ImGui::Render();
+
+            ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());//TODO: IMGUI 사용
 
             // switch the back buffer and the front buffer
             example->GetSwapChain()->Present(1, 0);

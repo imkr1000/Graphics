@@ -15,7 +15,15 @@ public:
     {}
 
 public:
+    Vector2 GetCenter() const { return center; }
+    float* GetCenterFloatAddress() { return &center.x; }
     Color GetColor() const { return color; }
+    float* GetColorFloatAddress() { return &color.x; }
+    float GetRadius() const { return radius; }
+    float* GetRadiusAddress() { return &radius; }
+    float GetRadiusSqaured() const { return radiusSquared; }
+
+    void SetRadiusSqaured(float radiusSquared) { this->radiusSquared = radiusSquared; }
 
 public:
     bool IsInside(const Vector2& v)
@@ -24,6 +32,7 @@ public:
         //if ((v - center).Length() <= radius)
         //    return true;
 
+        //ÃÖÀûÈ­
         if ((v - center).LengthSquared() <= radiusSquared)
             return true;
 

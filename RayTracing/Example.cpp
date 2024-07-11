@@ -8,7 +8,6 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb_image_write.h>
 
-
 // std::clamp (C++17)
 
 Example::Example(HWND window, UINT width, UINT height)
@@ -247,6 +246,13 @@ void Example::Update()
 
 void Example::Render()
 {
+    ImGui::Begin("Circle");
+    ImGui::SliderFloat2("Center", circle1->GetCenterFloatAddress(), 0.0f, float(width - 1.0f));
+    ImGui::SliderFloat("Radius", circle1->GetRadiusAddress(), 0.0f, float(width - 1.0f));
+    circle1->SetRadiusSqaured(powf(circle1->GetRadius(), 2));
+    ImGui::SliderFloat3("RGB", circle1->GetColorFloatAddress(), 0.0f, 1.0f);
+    ImGui::End();
+
     float clearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
     deviceContext->RSSetViewports(1, &viewport);
     deviceContext->OMSetRenderTargets(1, renderTargetView.GetAddressOf(), nullptr);
