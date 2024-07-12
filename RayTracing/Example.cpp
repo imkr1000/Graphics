@@ -11,7 +11,7 @@
 // std::clamp (C++17)
 
 Example::Example(HWND window, UINT width, UINT height)
-    : circle1(std::make_unique<Circle>(Vector2{ width / 2.0f, height / 2.0f }, height / 4.0f, Color{ 1.0f, 0.0f, 0.0f, 1.0f }))
+    : circle1(std::make_unique<Circle>(Vector2{ 0.0f, 0.0f, }, 0.4f, Color{ 1.0f, 0.0f, 0.0f, 1.0f }))
 {
     Initialize(window, width, height);
 
@@ -231,7 +231,10 @@ void Example::Update()
     for (UINT j = 0; j < height; j++)
         for (UINT i = 0; i < width; i++)
         {
-            if (circle1->IsInside(Vector2{ float(i), float(j) }))
+            const auto& positionScreen = Vector2(float(i), float(j));
+            const auto& positionWorld = TransformScreenToWorld(positionScreen);
+
+            if (circle1->IsInside(positionWorld))
             {
                 pixels[i + width * j] = circle1->GetColor();
             }
@@ -247,8 +250,9 @@ void Example::Update()
 void Example::Render()
 {
     ImGui::Begin("Circle");
-    ImGui::SliderFloat2("Center", circle1->GetCenterFloatAddress(), 0.0f, float(width - 1.0f));
-    ImGui::SliderFloat("Radius", circle1->GetRadiusAddress(), 0.0f, float(width - 1.0f));
+    //ImGui::SliderFloat2("Center", circle1->GetCenterFloatAddress(), 0.0f, float(width - 1.0f));
+    ImGui::SliderFloat2("Center", circle1->GetCenterFloatAddress(), -float(width) / height, float(width) / height);
+    ImGui::SliderFloat("Radius", circle1->GetRadiusAddress(), 0.0f, 1.0f);
     circle1->SetRadiusSqaured(powf(circle1->GetRadius(), 2));
     ImGui::SliderFloat3("RGB", circle1->GetColorFloatAddress(), 0.0f, 1.0f);
     ImGui::End();
@@ -274,4 +278,18 @@ void Example::Render()
     deviceContext->PSSetShaderResources(0, 1, canvasTextureView.GetAddressOf());
     deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     deviceContext->DrawIndexed(indexCount, 0, 0);
+}
+
+Vector2 Example::TransformScreenToWorld(const Vector2& positionScreen)
+{
+    // 여기서 좌표계 변환 구현
+    // 스크린 좌표계는 [0, width-1] x [0, height-1]
+    // 여기서 우리가 정의한 월드(World) 좌표계는 [-aspect, +aspect] x [-1, +1]
+    // 화면비율 aspect = float(width) / height
+    float aspectRatio = float(width) / height;
+    //float transformedX = positionScreen.x / (width - 1) * aspectRatio * 2.0f - aspectRatio;
+    float transformedX = aspectRatio * (positionScreen.x / (width - 1) * 2.0f - 1.0f);
+    float transformedY = -positionScreen.y / (height - 1) * 2.0f + 1.0f;
+
+    return Vector2(transformedX, transformedY);
 }

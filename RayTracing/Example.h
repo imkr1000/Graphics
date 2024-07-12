@@ -20,6 +20,9 @@ public:
     void Render();
 
 public:
+    Vector2 TransformScreenToWorld(const Vector2& positionScreen);
+
+public:
     IDXGISwapChain* GetSwapChain() const { return swapChain.Get(); }
     ID3D11Device* GetDevice() const { return device.Get(); }
     ID3D11DeviceContext* GetDeviceContext() const { return deviceContext.Get(); }
