@@ -9,6 +9,10 @@
     <ClInclude Include="Example.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="ReadData.h" />
+    <ClInclude Include="Hit.h" />
+    <ClInclude Include="Ray.h" />
+    <ClInclude Include="Sphere.h" />
+    <ClInclude Include="RayTracer.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="_Shaders\PixelShader.hlsl">

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "RayTracer.h"
+
 struct Vertex
 {
     Vector4 pos;
@@ -18,9 +20,6 @@ public:
 public:
     void Update();
     void Render();
-
-public:
-    Vector2 TransformScreenToWorld(const Vector2& positionScreen);
 
 public:
     IDXGISwapChain* GetSwapChain() const { return swapChain.Get(); }
@@ -53,5 +52,5 @@ private:
     // SeaGreen Color Test
     //Color backgroundColor = Color(46.0f, 139.0f, 87.0f, 255.0f) / 255.0f;
 
-    std::unique_ptr<Circle> circle1;
+    JYKim::RayTracer rayTracer;
 };

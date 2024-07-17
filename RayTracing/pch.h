@@ -38,9 +38,6 @@ using namespace SimpleMath;
 //ReadData
 #include "ReadData.h"
 
-//Object
-#include "Circle.h"
-
 //Macros
 #define CHECK(hr) { if (FAILED(hr)) std::cout << "Error Code : 0x" << std::hex << hr << " - " << std::system_category().message(hr) << '\n'; assert(SUCCEEDED(hr)); }
 
