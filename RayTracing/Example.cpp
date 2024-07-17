@@ -174,10 +174,10 @@ void Example::Initialize(HWND window, UINT width, UINT height)
     {
         const std::vector<Vertex> vertices =
         {
-            { { -1.0f, -1.0f, 0.0f, 1.0f }, { 0.f, 1.f },},
-            { {  1.0f, -1.0f, 0.0f, 1.0f }, { 1.f, 1.f },},
-            { {  1.0f,  1.0f, 0.0f, 1.0f }, { 1.f, 0.f },},
-            { { -1.0f,  1.0f, 0.0f, 1.0f }, { 0.f, 0.f },},
+            { { -1.0f, -1.0f, 0.0f, 1.0f }, { 0.f, 1.f }, },
+            { {  1.0f, -1.0f, 0.0f, 1.0f }, { 1.f, 1.f }, },
+            { {  1.0f,  1.0f, 0.0f, 1.0f }, { 1.f, 0.f }, },
+            { { -1.0f,  1.0f, 0.0f, 1.0f }, { 0.f, 0.f }, },
         };
 
         D3D11_BUFFER_DESC bufferDesc;
@@ -280,16 +280,16 @@ void Example::Render()
     deviceContext->DrawIndexed(indexCount, 0, 0);
 }
 
-Vector2 Example::TransformScreenToWorld(const Vector2& positionScreen)
+Vector2 Example::TransformScreenToWorld(const Vector2& screenPosition)
 {
     // 여기서 좌표계 변환 구현
     // 스크린 좌표계는 [0, width-1] x [0, height-1]
     // 여기서 우리가 정의한 월드(World) 좌표계는 [-aspect, +aspect] x [-1, +1]
     // 화면비율 aspect = float(width) / height
     float aspectRatio = float(width) / height;
-    //float transformedX = positionScreen.x / (width - 1) * aspectRatio * 2.0f - aspectRatio;
-    float transformedX = aspectRatio * (positionScreen.x / (width - 1) * 2.0f - 1.0f);
-    float transformedY = -positionScreen.y / (height - 1) * 2.0f + 1.0f;
+    //float transformedX = screenPosition.x / (width - 1) * aspectRatio * 2.0f - aspectRatio;
+    float transformedX = aspectRatio * (screenPosition.x / (width - 1) * 2.0f - 1.0f);
+    float transformedY = -screenPosition.y / (height - 1) * 2.0f + 1.0f;
 
     return Vector2(transformedX, transformedY);
 }
