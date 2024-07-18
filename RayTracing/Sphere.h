@@ -19,17 +19,22 @@ namespace JYKim
         }
 
     public:
-        
+        Vector3 GetCenter() const { return center; }
+        float* GetCenterFloatAddress() { return &center.x; }
+        Color GetColor() const { return color; }
+        float* GetColorFloatAddress() { return &color.x; }
+        float GetRadius() const { return radius; }
+        float* GetRadiusAddress() { return &radius; }
 
         Hit IntersectRayCollision(const Ray& ray) const
         {
             Hit hit = Hit{ -1.0f, Vector3(0.0f), Vector3(0.0f) };   // d가 음수이면 충돌을 안한 것으로 가정
 
             /*
-             * hit.d = ... // 광선의 시작점으로부터 충돌지점까지의 거리 (float)
-             * hit.point = ... // 광선과 구가 충돌한 지점의 위치 (vec3)
-             * hit.normal = .. // 충돌 지점에서 구의 단위 법선 벡터(unit normal vector)
-             */
+            * hit.d = ... // 광선의 시작점으로부터 충돌지점까지의 거리 (float)
+            * hit.point = ... // 광선과 구가 충돌한 지점의 위치 (vec3)
+            * hit.normal = .. // 충돌 지점에서 구의 단위 법선 벡터(unit normal vector)
+            */
 
             const float b = 2.0f * ray.dir.Dot(ray.start - center);
             const float c = (ray.start - center).LengthSquared() - radius * radius;

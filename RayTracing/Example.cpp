@@ -8,7 +8,6 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb_image_write.h>
 
-
 Example::Example(HWND window, UINT width, UINT height)
     : rayTracer(width, height)
 {
