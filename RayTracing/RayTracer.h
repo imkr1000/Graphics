@@ -21,6 +21,7 @@ namespace JYKim
             : width(width), height(height)
         {
             sphere = make_shared<Sphere>(Vector3(0.0f, 0.0f, 0.5f), 0.4f, Color(1.0f, 1.0f, 1.0f, 1.0f));
+			sphere->amb
         }
 
         Vector3 TransformScreenToWorld(const Vector2& screenPosition) const

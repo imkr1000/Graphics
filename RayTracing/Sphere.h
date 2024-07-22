@@ -7,7 +7,7 @@ namespace JYKim
 {
     class Sphere
     {
-    public:
+    private:
         Vector3 center;     //center.z가 음수 -> 화면 바깥 쪽 방향에 물체가 있다(그려지지 않는다)
         float radius;
         
@@ -29,8 +29,6 @@ namespace JYKim
     public:
         Vector3 GetCenter() const { return center; }
         float* GetCenterFloatAddress() { return &center.x; }
-        Color GetColor() const { return color; }
-        float* GetColorFloatAddress() { return &color.x; }
         float GetRadius() const { return radius; }
         float* GetRadiusAddress() { return &radius; }
 
@@ -46,6 +44,7 @@ namespace JYKim
             * hit.normal = .. // 충돌 지점에서 구의 단위 법선 벡터(unit normal vector)
             */
 
+			//const double a = glm::dot(ray.dir_, ray.dir_); // dir이 unit vector라면 a는 1.0
             const float b = 2.0f * ray.dir.Dot(ray.start - center);
             const float c = (ray.start - center).LengthSquared() - radius * radius;
 
