@@ -47,7 +47,7 @@ namespace JYKim
             }
             else
             {
-                return sphere->color * hit.distance; // 깊이(Ray를 쏜 pixel로부터의 거리 d)를 곱해서 입체감 만들기(거리가 가까우면 어둡고 멀면 밝음)
+                return sphere->GetColor() * hit.distance; // 깊이(Ray를 쏜 pixel로부터의 거리 d)를 곱해서 입체감 만들기(거리가 가까우면 어둡고 멀면 밝음)
                 //현재는 조명, 원근감 등이 표현되지 않았기 때문에 현실감이 조금 떨어지는 상태
                 //return sphere->color / (1.0f + hit.distance); // 가까이 있는 걸 밝게, 멀리 있는 건 어둡게 나타내 더 자연스러움
             }

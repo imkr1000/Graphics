@@ -7,7 +7,7 @@ namespace JYKim
 {
     class Sphere
     {
-    public:
+    private:
         Vector3 center;     //center.z가 음수 -> 화면 바깥 쪽 방향에 물체가 있다(그려지지 않는다)
         float radius;
         Color color;        // 뒤에서 '재질(material)'로 확장
