@@ -1,6 +1,5 @@
 #pragma once
 
-#include <iostream>
 #include <directxtk/SimpleMath.h>
 
 namespace JYKim

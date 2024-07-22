@@ -52,5 +52,5 @@ private:
     // SeaGreen Color Test
     //Color backgroundColor = Color(46.0f, 139.0f, 87.0f, 255.0f) / 255.0f;
 
-    JYKim::RayTracer rayTracer;
+    JYKim::RayTracer rayTracer; // 새로 만든 Raytracer 클래스의 object(=instance)
 };
