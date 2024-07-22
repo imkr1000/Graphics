@@ -11,7 +11,7 @@ namespace JYKim
     
     class RayTracer
     {
-    public:
+    private:
         int width, height;
 		Light light;
         shared_ptr<Sphere> sphere;
@@ -20,8 +20,13 @@ namespace JYKim
         RayTracer(const int width, const int height)
             : width(width), height(height)
         {
-            sphere = make_shared<Sphere>(Vector3(0.0f, 0.0f, 0.5f), 0.4f, Color(1.0f, 1.0f, 1.0f, 1.0f));
-			sphere->amb
+            sphere = make_shared<Sphere>(Vector3(0.0f, 0.0f, 0.5f), 0.5f, Color(1.0f, 1.0f, 1.0f, 1.0f));
+			sphere->SetDiffuse(Vector3(0.0f, 0.0f, 1.0f));
+			sphere->SetSpecular(Vector3(1.0f, 1.0f, 1.0f));
+			sphere->SetKs(0.8f);
+			sphere->SetAlpha(9.0f);
+
+			light = Light{ Vector3(0.0f, 0.0f, -1.0f) }; // 화면 뒷쪽
         }
 
         Vector3 TransformScreenToWorld(const Vector2& screenPosition) const
@@ -50,9 +55,34 @@ namespace JYKim
             }
             else
             {
-                return sphere->GetColor() * hit.distance; // 깊이(Ray를 쏜 pixel로부터의 거리 d)를 곱해서 입체감 만들기(거리가 가까우면 어둡고 멀면 밝음)
+				//앞에서 쓴 색 결정
+                //return sphere->GetColor() * hit.distance; // 깊이(Ray를 쏜 pixel로부터의 거리 d)를 곱해서 입체감 만들기(거리가 가까우면 어둡고 멀면 밝음)
                 //현재는 조명, 원근감 등이 표현되지 않았기 때문에 현실감이 조금 떨어지는 상태
                 //return sphere->color / (1.0f + hit.distance); // 가까이 있는 걸 밝게, 멀리 있는 건 어둡게 나타내 더 자연스러움
+
+				// 여기서 퐁 모델(Phong reflection model)으로 조명 효과 계산
+				// 참고 자료
+				// https://en.wikipedia.org/wiki/Phong_reflection_model
+				// https://www.scratchapixel.com/lessons/3d-basic-rendering/phong-shader-BRDF/phong-illumination-models-brdf.html
+
+				// TODO:
+				// Diffuse
+				// const Vector3 dirToLight = ...
+				const Vector3 n = hit.normal;
+				const Vector3 l = light.pos - hit.point;
+				const_cast<Vector3&>(l).Normalize();
+				const float diff = max(n.Dot(l), 0.0f);
+				
+				// Specular
+				// const Vector3 reflectDir = ... // r = 2 (n dot l) n - l
+				const Vector3 r = 2.0f * n.Dot(l) * n - l;
+				const float specular = pow(max((-ray.dir).Dot(r), 0.0f), sphere->GetAlpha());
+
+				//return sphere->GetAmbient();
+				//return sphere->GetDiffuse() * diff;
+				//return sphere->GetSpecular() * specular * sphere->GetKs();
+
+				return Color(sphere->GetAmbient() + sphere->GetDiffuse() * diff + sphere->GetSpecular() * specular * sphere->GetKs());
             }
         }
 
@@ -61,7 +91,12 @@ namespace JYKim
             ImGui::Begin("Sphere");
             ImGui::SliderFloat3("Center", sphere->GetCenterFloatAddress(), -1.0f, 1.0f);
             ImGui::SliderFloat("Radius", sphere->GetRadiusAddress(), 0.0f, 1.0f);
-            ImGui::SliderFloat3("RGB", sphere->GetColorFloatAddress(), 0.0f, 1.0f);
+			ImGui::SliderFloat3("Light", const_cast<float*>(&light.pos.x), -2.0f, 2.0f);
+            ImGui::SliderFloat3("Ambient Color", sphere->GetAmbientFloatAddress(), 0.0f, 1.0f);
+            ImGui::SliderFloat3("Diffuse Color", sphere->GetDiffuseFloatAddress(), 0.0f, 1.0f);
+            ImGui::SliderFloat3("Specular Color", sphere->GetSpecularFloatAddress(), 0.0f, 1.0f);
+			ImGui::SliderFloat("Specular Power", sphere->GetAlphaAddress(), 0.0f, 100.0f);
+			ImGui::SliderFloat("Specular coeff", sphere->GetKsAddress(), 0.0f, 1.0f);
             ImGui::End();
 
             fill(pixels.begin(), pixels.end(), Color());

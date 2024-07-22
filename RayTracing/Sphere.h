@@ -15,7 +15,7 @@ namespace JYKim
 		Vector3 amb = Vector3();	// Ambient
 		Vector3 diff = Vector3();	// Diffuse
 		Vector3 spec = Vector3();	// Specular
-		float ks = 0.0f;
+		float ks = 0.0f;			// Specular Reflection
 		float alpha = 0.0f;
 		//float reflection_ = 0.0;
 		//float transparency = 0.0;
@@ -31,6 +31,22 @@ namespace JYKim
         float* GetCenterFloatAddress() { return &center.x; }
         float GetRadius() const { return radius; }
         float* GetRadiusAddress() { return &radius; }
+
+		Vector3 GetAmbient() const { return amb; }
+		float* GetAmbientFloatAddress() { return &amb.x; }
+		Vector3 GetDiffuse() const { return diff; }
+		float* GetDiffuseFloatAddress() { return &diff.x; }
+		Vector3 GetSpecular() const { return spec; }
+		float* GetSpecularFloatAddress() { return &spec.x; }
+		float GetKs() const { return ks; }
+		float* GetKsAddress() { return &ks; }
+		float GetAlpha() const { return alpha; }
+		float* GetAlphaAddress() { return &alpha; }
+		void SetAmbient(const Vector3& amb) { this->amb = amb; }
+		void SetDiffuse(const Vector3& diff) { this->diff = diff; }
+		void SetSpecular(const Vector3& spec) { this->spec = spec; }
+		void SetKs(const float ks) { this->ks = ks; }
+		void SetAlpha(const float alpha) { this->alpha = alpha; }
 
 		// Wikipedia Line-sphere intersection
 		// https://en.wikipedia.org/wiki/Line?sphere_intersection
