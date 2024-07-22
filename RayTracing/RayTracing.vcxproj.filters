@@ -13,6 +13,7 @@
     <ClInclude Include="Ray.h" />
     <ClInclude Include="Sphere.h" />
     <ClInclude Include="RayTracer.h" />
+    <ClInclude Include="Light.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="_Shaders\PixelShader.hlsl">

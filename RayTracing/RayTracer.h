@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Sphere.h"
+#include "Light.h"
 
 #include <vector>
 
@@ -12,6 +13,7 @@ namespace JYKim
     {
     public:
         int width, height;
+		Light light;
         shared_ptr<Sphere> sphere;
 
     public:

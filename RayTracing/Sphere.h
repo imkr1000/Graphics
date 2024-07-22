@@ -10,11 +10,19 @@ namespace JYKim
     public:
         Vector3 center;     //center.z가 음수 -> 화면 바깥 쪽 방향에 물체가 있다(그려지지 않는다)
         float radius;
-        Color color;        // 뒤에서 '재질(material)'로 확장
+        
+		// 퐁 쉐이딩(Phong shading)을 위한 재질(material)
+		Vector3 amb = Vector3();	// Ambient
+		Vector3 diff = Vector3();	// Diffuse
+		Vector3 spec = Vector3();	// Specular
+		float ks = 0.0f;
+		float alpha = 0.0f;
+		//float reflection_ = 0.0;
+		//float transparency = 0.0;
 
     public:
         Sphere(const Vector3& center, const float radius, const Color& color)
-            : center(center), color(color), radius(radius)
+            : center(center), radius(radius)
         {
         }
 
@@ -26,6 +34,8 @@ namespace JYKim
         float GetRadius() const { return radius; }
         float* GetRadiusAddress() { return &radius; }
 
+		// Wikipedia Line-sphere intersection
+		// https://en.wikipedia.org/wiki/Line?sphere_intersection
         Hit IntersectRayCollision(const Ray& ray) const
         {
             Hit hit = Hit{ -1.0f, Vector3(0.0f), Vector3(0.0f) };   // d가 음수이면 충돌을 안한 것으로 가정
