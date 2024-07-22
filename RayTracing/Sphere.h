@@ -26,6 +26,8 @@ namespace JYKim
         float GetRadius() const { return radius; }
         float* GetRadiusAddress() { return &radius; }
 
+		// Wikipedia Line-sphere intersection
+		// https://en.wikipedia.org/wiki/Line?sphere_intersection
         Hit IntersectRayCollision(const Ray& ray) const
         {
             Hit hit = Hit{ -1.0f, Vector3(0.0f), Vector3(0.0f) };   // d가 음수이면 충돌을 안한 것으로 가정
