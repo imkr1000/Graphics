@@ -231,6 +231,7 @@ xcopy /y /d "imgui.ini" "$(Outdir)"</Command>
     <ClInclude Include="Example.h" />
     <ClInclude Include="Hit.h" />
     <ClInclude Include="Light.h" />
+    <ClInclude Include="Object.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Ray.h" />
     <ClInclude Include="RayTracer.h" />

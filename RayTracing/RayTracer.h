@@ -14,20 +14,60 @@ namespace JYKim
     private:
         int width, height;
 		Light light;
-        shared_ptr<Sphere> sphere;
+        //shared_ptr<Sphere> sphere;
+        vector<shared_ptr<Sphere>> objects;
 
     public:
         RayTracer(const int width, const int height)
             : width(width), height(height)
         {
-            sphere = make_shared<Sphere>(Vector3(0.0f, 0.0f, 0.5f), 0.5f, Color(1.0f, 1.0f, 1.0f, 1.0f));
-			sphere->SetDiffuse(Vector3(0.0f, 0.0f, 1.0f));
-			sphere->SetSpecular(Vector3(1.0f, 1.0f, 1.0f));
-			sphere->SetKs(0.8f);
-			sphere->SetAlpha(9.0f);
+			// 스크린으로부터 거리가 다른 구 3개
+            auto sphere1 = make_shared<Sphere>(Vector3(0.5f, 0.0f, 0.5f), 0.4f, Color(0.5f, 0.5f, 0.5f, 1.0f));
+			auto sphere2 = make_shared<Sphere>(Vector3(0.0f, 0.0f, 1.0f), 0.4f, Color(0.5f, 0.5f, 0.5f, 1.0f));
+			auto sphere3 = make_shared<Sphere>(Vector3(-0.5f, 0.0f, 1.5f), 0.4f, Color(0.5f, 0.5f, 0.5f, 1.0f));
+
+			sphere1->SetAmbient(Vector3(0.2f));
+			sphere1->SetDiffuse(Vector3(1.0f, 0.2f, 0.2f));
+			sphere1->SetSpecular(Vector3(0.5f));
+			sphere1->SetAlpha(10.0f);
+
+			sphere2->SetAmbient(Vector3(0.2f));
+			sphere2->SetDiffuse(Vector3(0.2f, 1.0f, 0.2f));
+			sphere2->SetSpecular(Vector3(0.5f));
+			sphere2->SetAlpha(10.0f);
+
+			sphere3->SetAmbient(Vector3(0.2f));
+			sphere3->SetDiffuse(Vector3(0.2f, 0.2f, 1.0f));
+			sphere3->SetSpecular(Vector3(0.5f));
+			sphere3->SetAlpha(10.0f);
+
+			// 일부러 역순으로 추가
+			objects.push_back(sphere3);
+			objects.push_back(sphere2);
+			objects.push_back(sphere1);
 
 			light = Light{ Vector3(0.0f, 0.0f, -1.0f) }; // 화면 뒷쪽
         }
+
+		Hit FindClosestCollision(const Ray& ray) const
+		{
+			float closestD = 1000.0f;
+			Hit closestHit = Hit{ -1.0f, Vector3(), Vector3() };
+
+			for (const auto& obj : objects)
+			{
+				auto hit = obj->CheckRayCollision(ray);
+
+				if (hit.distance >= 0.0f && hit.distance < closestD)
+				{
+					closestD = hit.distance;
+					hit.obj = obj;
+					closestHit = hit;
+				}
+			}
+
+			return closestHit;
+		}
 
         Vector3 TransformScreenToWorld(const Vector2& screenPosition) const
         {
@@ -45,61 +85,32 @@ namespace JYKim
         }
 
         // 광선이 물체에 닿으면 그 물체의 색 반환
-        Color TraceRay(Ray& ray) const
+        Color TraceRay(const Ray& ray) const
         {
-            const Hit& hit = sphere->IntersectRayCollision(ray);
+			const Hit& hit = FindClosestCollision(ray);
 
-            if (hit.distance < 0.0f)
-            {
-                return Color();
-            }
-            else
-            {
-				//앞에서 쓴 색 결정
-                //return sphere->GetColor() * hit.distance; // 깊이(Ray를 쏜 pixel로부터의 거리 d)를 곱해서 입체감 만들기(거리가 가까우면 어둡고 멀면 밝음)
-                //현재는 조명, 원근감 등이 표현되지 않았기 때문에 현실감이 조금 떨어지는 상태
-                //return sphere->color / (1.0f + hit.distance); // 가까이 있는 걸 밝게, 멀리 있는 건 어둡게 나타내 더 자연스러움
-
-				// 여기서 퐁 모델(Phong reflection model)으로 조명 효과 계산
-				// 참고 자료
-				// https://en.wikipedia.org/wiki/Phong_reflection_model
-				// https://www.scratchapixel.com/lessons/3d-basic-rendering/phong-shader-BRDF/phong-illumination-models-brdf.html
-
-				// TODO:
+			if (hit.distance >= 0.0f)
+			{
 				// Diffuse
-				// const Vector3 dirToLight = ...
-				const Vector3 n = hit.normal;
-				const Vector3 l = light.pos - hit.point;
-				const_cast<Vector3&>(l).Normalize();
-				const float diff = max(n.Dot(l), 0.0f);
+				Vector3 dirToLight = light.pos - hit.point;
+				dirToLight.Normalize();
+				const float diff = max(hit.normal.Dot(dirToLight), 0.0f);
 				
 				// Specular
-				// const Vector3 reflectDir = ... // r = 2 (n dot l) n - l
-				const Vector3 r = 2.0f * n.Dot(l) * n - l;
-				const float specular = pow(max((-ray.dir).Dot(r), 0.0f), sphere->GetAlpha());
+				const Vector3 reflectDir = 2.0f * hit.normal.Dot(dirToLight) * hit.normal - dirToLight;
+				const float specualr = pow(max(-ray.dir.Dot(reflectDir), 0.0f), hit.obj->alpha);
 
-				//return sphere->GetAmbient();
-				//return sphere->GetDiffuse() * diff;
-				//return sphere->GetSpecular() * specular * sphere->GetKs();
+				return Color(hit.obj->amb + hit.obj->diff * diff + hit.obj->spec * specualr);
+			}
 
-				return Color(sphere->GetAmbient() + sphere->GetDiffuse() * diff + sphere->GetSpecular() * specular * sphere->GetKs());
-            }
+			return Color();
         }
 
         void Render(vector<Color>& pixels) const
         {
-            ImGui::Begin("Sphere");
-            ImGui::SliderFloat3("Center", sphere->GetCenterFloatAddress(), -1.0f, 1.0f);
-            ImGui::SliderFloat("Radius", sphere->GetRadiusAddress(), 0.0f, 1.0f);
-			ImGui::SliderFloat3("Light", const_cast<float*>(&light.pos.x), -2.0f, 2.0f);
-            ImGui::SliderFloat3("Ambient Color", sphere->GetAmbientFloatAddress(), 0.0f, 1.0f);
-            ImGui::SliderFloat3("Diffuse Color", sphere->GetDiffuseFloatAddress(), 0.0f, 1.0f);
-            ImGui::SliderFloat3("Specular Color", sphere->GetSpecularFloatAddress(), 0.0f, 1.0f);
-			ImGui::SliderFloat("Specular Power", sphere->GetAlphaAddress(), 0.0f, 100.0f);
-			ImGui::SliderFloat("Specular coeff", sphere->GetKsAddress(), 0.0f, 1.0f);
-            ImGui::End();
-
             fill(pixels.begin(), pixels.end(), Color());
+
+			const Vector3 eyePos(0.0f, 0.0f, -1.5f);
 
 #pragma omp parallel for
             for (int y = 0; y < height; ++y)
@@ -111,7 +122,9 @@ namespace JYKim
 					// 스크린에 수직인 z방향, 절대값 1.0인 유닉 벡터
 					// Orthographic projection (정투영) vs perspective projection (원근투영)
 					// 현재는 직교투영이기 때문에 원근감이 느껴지지 않는다(즉 물체와 픽셀의 거리에 따른 크기 차이가 없다)
-                    const auto rayDir = Vector3(0.0f, 0.0f, 1.0f);
+                    //const auto rayDir = Vector3(0.0f, 0.0f, 1.0f); //직교투영
+					auto rayDir = pixelWorldPos - eyePos;
+					rayDir.Normalize();
 
                     Ray pixelRay{ pixelWorldPos, rayDir };
 
