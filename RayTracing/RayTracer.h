@@ -2,6 +2,7 @@
 
 #include "Sphere.h"
 #include "Light.h"
+#include "Triangle.h"
 
 #include <vector>
 
@@ -15,38 +16,31 @@ namespace JYKim
         int width, height;
 		Light light;
         //shared_ptr<Sphere> sphere;
-        vector<shared_ptr<Sphere>> objects;
+        vector<shared_ptr<Object>> objects;
 
     public:
         RayTracer(const int width, const int height)
             : width(width), height(height)
         {
 			// 스크린으로부터 거리가 다른 구 3개
-            auto sphere1 = make_shared<Sphere>(Vector3(0.5f, 0.0f, 0.5f), 0.4f, Color(0.5f, 0.5f, 0.5f, 1.0f));
-			auto sphere2 = make_shared<Sphere>(Vector3(0.0f, 0.0f, 1.0f), 0.4f, Color(0.5f, 0.5f, 0.5f, 1.0f));
-			auto sphere3 = make_shared<Sphere>(Vector3(-0.5f, 0.0f, 1.5f), 0.4f, Color(0.5f, 0.5f, 0.5f, 1.0f));
+            auto sphere1 = make_shared<Sphere>(Vector3(0.6f, 0.0f, 0.5f), 0.4f);
+			sphere1->SetAmbient(Vector3(0.1f));
+			sphere1->SetDiffuse(Vector3(1.0f, 0.1f, 0.1f));
+			sphere1->SetSpecular(Vector3(1.0f));
+			sphere1->SetAlpha(50.0f);
 
-			sphere1->SetAmbient(Vector3(0.2f));
-			sphere1->SetDiffuse(Vector3(1.0f, 0.2f, 0.2f));
-			sphere1->SetSpecular(Vector3(0.5f));
-			sphere1->SetAlpha(10.0f);
-
-			sphere2->SetAmbient(Vector3(0.2f));
-			sphere2->SetDiffuse(Vector3(0.2f, 1.0f, 0.2f));
-			sphere2->SetSpecular(Vector3(0.5f));
-			sphere2->SetAlpha(10.0f);
-
-			sphere3->SetAmbient(Vector3(0.2f));
-			sphere3->SetDiffuse(Vector3(0.2f, 0.2f, 1.0f));
-			sphere3->SetSpecular(Vector3(0.5f));
-			sphere3->SetAlpha(10.0f);
-
-			// 일부러 역순으로 추가
-			objects.push_back(sphere3);
-			objects.push_back(sphere2);
 			objects.push_back(sphere1);
 
-			light = Light{ Vector3(0.0f, 0.0f, -1.0f) }; // 화면 뒷쪽
+			auto triangle1 = make_shared<Triangle>(Vector3(-2.0f, -2.0f, 2.0f), Vector3(-2.0f, 2.0f, 2.0f), Vector3(2.0f, 2.0f, 2.0f));
+
+			triangle1->amb = Vector3(0.2f);
+			triangle1->diff = Vector3(0.5f);
+			triangle1->spec = Vector3(0.5f);
+			triangle1->alpha = 5.0f;
+
+			objects.push_back(triangle1);
+
+			light = Light{ Vector3(0.0f, 1.0f, -1.0f) }; // 화면 뒷쪽
         }
 
 		Hit FindClosestCollision(const Ray& ray) const
@@ -87,6 +81,7 @@ namespace JYKim
         // 광선이 물체에 닿으면 그 물체의 색 반환
         Color TraceRay(const Ray& ray) const
         {
+			// Render first hit
 			const Hit& hit = FindClosestCollision(ray);
 
 			if (hit.distance >= 0.0f)
@@ -99,7 +94,7 @@ namespace JYKim
 				// Specular
 				const Vector3 reflectDir = 2.0f * hit.normal.Dot(dirToLight) * hit.normal - dirToLight;
 				const float specualr = pow(max(-ray.dir.Dot(reflectDir), 0.0f), hit.obj->alpha);
-
+				
 				return Color(hit.obj->amb + hit.obj->diff * diff + hit.obj->spec * specualr);
 			}
 
@@ -112,6 +107,7 @@ namespace JYKim
 
 			const Vector3 eyePos(0.0f, 0.0f, -1.5f);
 
+#pragma warning (disable : 6993)
 #pragma omp parallel for
             for (int y = 0; y < height; ++y)
                 for (int x = 0; x < width; ++x)
@@ -127,11 +123,12 @@ namespace JYKim
 					rayDir.Normalize();
 
                     Ray pixelRay{ pixelWorldPos, rayDir };
-
+					
 					// index에는 size_t형 사용 (index가 음수일 수는 없으니까)
 					// traceRay()의 반환형은 vec3 (RGB), A는 불필요
                     pixels[size_t(x + width * y)] = TraceRay(pixelRay);
                 }
+#pragma warning (default : 6993)
         }
     };
 }

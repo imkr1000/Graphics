@@ -38,7 +38,7 @@ namespace JYKim
 		void SetAlpha(const float alpha) { this->alpha = alpha; }
 
 	public:
-		Object(const Color& color)
+		Object(const Color& color = Color(1))
 			: amb(color.ToVector3()), diff(color.ToVector3()), spec(color.ToVector3())
 		{
 		}

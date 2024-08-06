@@ -11,7 +11,7 @@ namespace JYKim
         float radius;
 
     public:
-        Sphere(const Vector3& center, const float radius, const Color& color)
+        Sphere(const Vector3& center, const float radius, const Color& color = Color(1))
             : center(center), radius(radius), Object(color)
         {
         }
@@ -24,7 +24,7 @@ namespace JYKim
 
 		// Wikipedia Line-sphere intersection
 		// https://en.wikipedia.org/wiki/Line?sphere_intersection
-		Hit CheckRayCollision(const Ray& ray) const
+		Hit CheckRayCollision(const Ray& ray) const override
 		{
 			Hit hit = Hit{ -1.0f, Vector3(0.0f), Vector3(0.0f) };   // d가 음수이면 충돌을 안한 것으로 가정
 

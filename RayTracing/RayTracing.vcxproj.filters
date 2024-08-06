@@ -9,12 +9,27 @@
     <ClInclude Include="Example.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="ReadData.h" />
-    <ClInclude Include="Hit.h" />
-    <ClInclude Include="Ray.h" />
-    <ClInclude Include="Sphere.h" />
-    <ClInclude Include="RayTracer.h" />
-    <ClInclude Include="Light.h" />
-    <ClInclude Include="Object.h" />
+    <ClInclude Include="Object.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Sphere.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Triangle.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Hit.h">
+      <Filter>RayTracer</Filter>
+    </ClInclude>
+    <ClInclude Include="Light.h">
+      <Filter>RayTracer</Filter>
+    </ClInclude>
+    <ClInclude Include="Ray.h">
+      <Filter>RayTracer</Filter>
+    </ClInclude>
+    <ClInclude Include="RayTracer.h">
+      <Filter>RayTracer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="_Shaders\PixelShader.hlsl">
@@ -27,6 +42,12 @@
   <ItemGroup>
     <Filter Include="_Shaders">
       <UniqueIdentifier>{18fea5cf-2d5e-45fb-8b9a-28ba3d8ade23}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Objects">
+      <UniqueIdentifier>{17d6f850-a86c-4ec0-b3c5-88261953b471}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RayTracer">
+      <UniqueIdentifier>{41edca63-dd9a-4e58-9474-d4a1a90bbec4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
