@@ -31,14 +31,14 @@ namespace JYKim
 
 			objects.push_back(sphere1);
 
-			auto triangle1 = make_shared<Triangle>(Vector3(-2.0f, -2.0f, 2.0f), Vector3(-2.0f, 2.0f, 2.0f), Vector3(2.0f, 2.0f, 2.0f));
+			//auto triangle1 = make_shared<Triangle>(Vector3(-2.0f, -2.0f, 2.0f), Vector3(-2.0f, 2.0f, 2.0f), Vector3(2.0f, 2.0f, 2.0f));
+			//
+			//triangle1->amb = Vector3(0.2f);
+			//triangle1->diff = Vector3(0.5f);
+			//triangle1->spec = Vector3(0.5f);
+			//triangle1->alpha = 5.0f;
 
-			triangle1->amb = Vector3(0.2f);
-			triangle1->diff = Vector3(0.5f);
-			triangle1->spec = Vector3(0.5f);
-			triangle1->alpha = 5.0f;
-
-			objects.push_back(triangle1);
+			//objects.push_back(triangle1);
 
 			light = Light{ Vector3(0.0f, 1.0f, -1.0f) }; // È­¸é µÞÂÊ
         }
