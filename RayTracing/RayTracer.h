@@ -3,6 +3,7 @@
 #include "Sphere.h"
 #include "Light.h"
 #include "Triangle.h"
+#include "Square.h"
 
 #include <vector>
 
@@ -15,19 +16,20 @@ namespace JYKim
     private:
         int width, height;
 		Light light;
-        //shared_ptr<Sphere> sphere;
+        shared_ptr<Sphere> sphere;
         vector<shared_ptr<Object>> objects;
 
     public:
         RayTracer(const int width, const int height)
             : width(width), height(height)
         {
-			// 스크린으로부터 거리가 다른 구 3개
-            auto sphere1 = make_shared<Sphere>(Vector3(0.6f, 0.0f, 0.5f), 0.4f);
-			sphere1->SetAmbient(Vector3(0.1f));
+			auto sphere1 = make_shared<Sphere>(Vector3(0.0f, 0.0f, 0.6f), 0.4f);
+			sphere1->SetAmbient(Vector3(0.2f, 0.0f, 0.0f));
 			sphere1->SetDiffuse(Vector3(1.0f, 0.1f, 0.1f));
-			sphere1->SetSpecular(Vector3(1.0f));
+			sphere1->SetSpecular(Vector3(1.5f));
 			sphere1->SetAlpha(50.0f);
+
+			sphere = sphere1; // GUI 연결하기 위해 보관
 
 			objects.push_back(sphere1);
 
@@ -40,12 +42,19 @@ namespace JYKim
 
 			//objects.push_back(triangle1);
 
-			light = Light{ Vector3(0.0f, 1.0f, -1.0f) }; // 화면 뒷쪽
+			auto ground = make_shared<Square>(Vector3(-2.0f, -1.0f, 0.0f), Vector3(-2.0f, -1.0f, 4.0f), Vector3(2.0f, -1.0f, 4.0f), Vector3(2.0f, -1.0f, 0.0f));
+			ground->SetAmbient(Vector3(0.2f));
+			ground->SetDiffuse(Vector3(0.8f));
+			ground->SetSpecular(Vector3(1.0f));
+			ground->SetAlpha(0.5f);
+			objects.push_back(ground);
+
+			light = Light{ Vector3(0.0f, 1.0f, 0.2f) }; // 화면 뒷쪽
         }
 
 		Hit FindClosestCollision(const Ray& ray) const
 		{
-			float closestD = 1000.0f;
+			float closestD = 1000.0f; // inf
 			Hit closestHit = Hit{ -1.0f, Vector3(), Vector3() };
 
 			for (const auto& obj : objects)
@@ -89,6 +98,12 @@ namespace JYKim
 				// Diffuse
 				Vector3 dirToLight = light.pos - hit.point;
 				dirToLight.Normalize();
+
+				Ray shadowRay = { hit.point + 1e-4f * dirToLight, dirToLight };
+				if (FindClosestCollision(shadowRay).obj != nullptr
+					&& FindClosestCollision(shadowRay).distance <= (light.pos - hit.point).Length())
+					return Color(hit.obj->amb);
+
 				const float diff = max(hit.normal.Dot(dirToLight), 0.0f);
 				
 				// Specular
@@ -103,6 +118,11 @@ namespace JYKim
 
         void Render(vector<Color>& pixels) const
         {
+			ImGui::Begin("Scene Control");
+			ImGui::SliderFloat3("Light Position", (float*)&light.pos.x, -2.0f, 2.0f);
+			ImGui::SliderFloat3("Sphere Position", sphere->GetCenterFloatAddress(), -1.0f, 1.0f);
+			ImGui::End();
+
             fill(pixels.begin(), pixels.end(), Color());
 
 			const Vector3 eyePos(0.0f, 0.0f, -1.5f);
