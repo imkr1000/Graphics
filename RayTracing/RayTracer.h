@@ -46,7 +46,7 @@ namespace JYKim
 			ground->SetAmbient(Vector3(0.2f));
 			ground->SetDiffuse(Vector3(0.8f));
 			ground->SetSpecular(Vector3(1.0f));
-			ground->SetAlpha(0.5f);
+			ground->SetAlpha(50.0f);
 			objects.push_back(ground);
 
 			light = Light{ Vector3(0.0f, 1.0f, 0.2f) }; // È­¸é µÞÂÊ
