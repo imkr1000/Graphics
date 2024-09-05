@@ -15,7 +15,7 @@ namespace JYKim
 		Vector3 amb = Vector3();	// Ambient
 		Vector3 diff = Vector3();	// Diffuse
 		Vector3 spec = Vector3();	// Specular
-		float alpha = 0.0f;
+		float alpha = 10.0f;
 		//float ks = 1.0f;			// Specular Reflection, 변수를 줄이기 위해 항상 1.0으로 가정
 		//float reflection_ = 0.0;
 		//float transparency = 0.0;

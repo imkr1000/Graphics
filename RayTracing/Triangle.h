@@ -25,13 +25,16 @@ namespace JYKim
 			Hit hit = Hit{ -1.0, Vector3(), Vector3() };
 
 			Vector3 point, faceNormal;
-			float t, u, v;
+			float t, w0, w1;
 
-			if (IntersectRayTriangle(ray.start, ray.dir, v0, v1, v2, point, faceNormal, t, u, v))
+			if (IntersectRayTriangle(ray.start, ray.dir, v0, v1, v2, point, faceNormal, t, w0, w1))
 			{
 				hit.distance = t;
 				hit.point = point; // ray.start + ray.dir * t;
 				hit.normal = faceNormal;
+
+				// Barycentric coordinates 확인용
+				hit.w = Vector2(w0, w1);
 
 				// 텍스춰링(texturing)에서 사용
 				// hit.uv = uv0 * u + uv1 * v + uv2 * (1.0f - u - v);
@@ -48,7 +51,7 @@ namespace JYKim
 		bool IntersectRayTriangle(const Vector3& origin, const Vector3& dir,
 			const Vector3& v0, const Vector3& v1, const Vector3 v2,
 			Vector3& point, Vector3& faceNormal,
-			float& t, float& u, float& v) const
+			float& t, float& w0, float& w1) const
 		{
 			/*
 			 * 기본 전략
@@ -88,23 +91,43 @@ namespace JYKim
 			// const vec3 normal1 = ...
 			// const vec3 normal2 = ...
 			// 방향만 확인하면 되기 때문에 normalize() 생략 가능
-			const Vector3 normal0 = (point - v2).Cross(v1 - v2);
-			const Vector3 normal1 = (point - v0).Cross(v2 - v0);
-			const Vector3 normal2 = (point - v1).Cross(v0 - v1);
+			const Vector3 cross0 = (point - v2).Cross(v1 - v2);
+			const Vector3 cross1 = (point - v0).Cross(v2 - v0);
+			const Vector3 cross2 = (point - v1).Cross(v0 - v1);
 			// 아래에서 cross product의 절대값으로 작은 삼각형들의 넓이 계산
 
 			// if (dot(normal0, faceNormal) < 0.0f) return false;
 			// if (dot(normal1, faceNormal) < 0.0f) return false;
 			// if (dot(normal2, faceNormal) < 0.0f) return false;
 
-			if (normal0.Dot(faceNormal) < 0.0f) return false;
-			if (normal1.Dot(faceNormal) < 0.0f) return false;
-			if (normal2.Dot(faceNormal) < 0.0f) return false;
+			if (cross0.Dot(faceNormal) < 0.0f) return false;
+			if (cross1.Dot(faceNormal) < 0.0f) return false;
+			if (cross2.Dot(faceNormal) < 0.0f) return false;
 
 			// Barycentric coordinates 계산
 			// 텍스춰링(texturing)에서 사용
-			// u = ...
-			// v = ...
+			// 아래에서 cross product의 절대값으로 작은 삼각형들의 넓이 계산
+
+			// const float area0 = ...
+			// const float area1 = ...
+			// const float area2 = ...
+			//const float area0 = cross0.Length() * 0.5f;
+			//const float area1 = cross1.Length() * 0.5f;
+			//const float area2 = cross2.Length() * 0.5f;
+			//비율이기 때문에 * 0.5 생략 가능
+			const float area0 = cross0.Length();
+			const float area1 = cross1.Length();
+			const float area2 = cross2.Length();
+
+			// const float areaSum = ...
+
+			// 기호에 alpha, beta, gamma 또는 u, v, w 등을 사용하기도 함
+			//w0 = 0.0f; //임시 값
+			//w1 = 0.0f; //임시 값
+			const float areaSum = area0 + area1 + area2;
+
+			w0 = area0 / areaSum;
+			w1 = area1 / areaSum;
 
 			return true;
 		}
