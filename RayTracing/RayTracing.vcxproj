@@ -238,6 +238,7 @@ xcopy /y /d "imgui.ini" "$(Outdir)"</Command>
     <ClInclude Include="ReadData.h" />
     <ClInclude Include="Sphere.h" />
     <ClInclude Include="Square.h" />
+    <ClInclude Include="Texture.h" />
     <ClInclude Include="Triangle.h" />
   </ItemGroup>
   <ItemGroup>

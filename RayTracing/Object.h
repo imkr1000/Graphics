@@ -2,6 +2,7 @@
 
 #include "Hit.h"
 #include "Ray.h"
+#include "Texture.h"
 
 namespace JYKim
 {

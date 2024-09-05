@@ -33,6 +33,7 @@
     <ClInclude Include="Square.h">
       <Filter>Objects</Filter>
     </ClInclude>
+    <ClInclude Include="Texture.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="_Shaders\PixelShader.hlsl">
