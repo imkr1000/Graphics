@@ -21,6 +21,9 @@ namespace JYKim
 		//float reflection_ = 0.0;
 		//float transparency = 0.0;
 
+		std::shared_ptr<Texture> ambTexture;
+		std::shared_ptr<Texture> difTexture;
+
 	public:
 		Vector3 GetAmbient() const { return amb; }
 		float* GetAmbientFloatAddress() { return &amb.x; }

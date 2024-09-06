@@ -1,7 +1,6 @@
 #pragma once
 
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
+#include "stb_image.h"
 
 namespace JYKim
 {
@@ -11,10 +10,10 @@ namespace JYKim
 	class Texture
 	{
 	public:
-		int width, height, channels;
-		vector<uint8_t> image;
+		int width = 0, height = 0, channels = 0;
+		std::vector<uint8_t> image;
 
-		Texture(const string& fileName)
+		Texture(const std::string& fileName)
 		{
 			unsigned char* img = stbi_load(fileName.c_str(), &width, &height, &channels, 0);
 
@@ -23,7 +22,9 @@ namespace JYKim
 
 			delete img;
 		}
-		Texture(const int width, const int height, const vector<Color>& pixels)
+
+		Texture(const int width, const int height, const std::vector<Color>& pixels)
+			: width(width), height(height), channels(3)
 		{
 			image.resize(size_t(width * height * channels));
 
@@ -42,8 +43,8 @@ namespace JYKim
 		Color GetClamped(int i, int j)
 		{
 			//가로 세로 최대치나 최소치를 넘어가면 넘어간 쪽의 마지막 색상 값이 반복된다.
-			i = clamp(j, 0, width - 1);
-			j = clamp(j, 0, height - 1);
+			i = std::clamp(j, 0, width - 1);
+			j = std::clamp(j, 0, height - 1);
 
 			const float r = image[(i + width * j) * channels + 0] / 255.0f;
 			const float g = image[(i + width * j) * channels + 1] / 255.0f;
@@ -92,7 +93,7 @@ namespace JYKim
 			// Vector2 xy = ...;
 			// int i = ...;
 			// int j = ...;
-			const Vector2 xy = uv * Vector2(width, height) - Vector2(0.5f);
+			const Vector2 xy = uv * Vector2(float(width), float(height)) - Vector2(0.5f);
 			const int i = int(round(xy.x));
 			const int j = int(round(xy.y));
 
@@ -126,7 +127,7 @@ namespace JYKim
 			// const int j = ...;
 			// const float dx = ...;
 			// const float dy = ...;
-			const Vector2 xy = uv * Vector2(width, height) - Vector2(0.5f);
+			const Vector2 xy = uv * Vector2(float(width), float(height)) - Vector2(0.5f);
 			const int i = int(floor(xy.x));
 			const int j = int(floor(xy.y));
 			const float dx = xy.x - i;

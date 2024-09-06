@@ -17,7 +17,6 @@ namespace JYKim
         int width, height;
 		Light light;
         vector<shared_ptr<Object>> objects;
-        shared_ptr<Object> tempObject;
 
     public:
         RayTracer(const int width, const int height)
@@ -31,23 +30,20 @@ namespace JYKim
 
 			objects.push_back(sphere1);
 
-			//auto triangle1 = make_shared<Triangle>(Vector3(-2.0f, -2.0f, 2.0f), Vector3(-2.0f, 2.0f, 2.0f), Vector3(2.0f, 2.0f, 2.0f));
-			//
-			//triangle1->amb = Vector3(0.2f);
-			//triangle1->diff = Vector3(0.5f);
-			//triangle1->spec = Vector3(0.5f);
-			//triangle1->alpha = 5.0f;
-
-			//objects.push_back(triangle1);
-
-			auto triangle = make_shared<Triangle>(Vector3(-2.0f, -2.0f, 2.0f), Vector3(-2.0f, 2.0f, 2.0f), Vector3(2.0f, 2.0f, 2.0f));
-			triangle->SetAmbient(Vector3(1.0f));
-			triangle->SetDiffuse(Vector3(0.0f));
-			triangle->SetSpecular(Vector3(0.0f));
-
-			tempObject = triangle; // 따로 처리하기 위해 임시로 저장
-
-			objects.push_back(triangle);
+			size_t x = 4, y = 4;
+			vector<Color> textureImage(4 * 4);
+			for (int j = 0; j < 4; ++j)
+				for (int i = 0; i < 4; ++i)
+				{
+					if (i % 4 == 0)
+						textureImage[i + 4 * j] = Color(Vector3(1.0f, 0.0f, 0.0f) * (1.0f + j) * 0.25f);
+					if (i % 4 == 1)
+						textureImage[i + 4 * j] = Color(Vector3(0.0f, 1.0f, 0.0f) * (1.0f + j) * 0.25f);
+					if (i % 4 == 2)
+						textureImage[i + 4 * j] = Color(Vector3(0.0f, 0.0f, 1.0f) * (1.0f + j) * 0.25f);
+					else
+						textureImage[i + 4 * j] = Color(Vector3(1.0f, 1.0f, 1.0f) * (1.0f + j) * 0.25f);
+				}
 
 			light = Light{ Vector3(0.0f, 1.0f, 0.5f) }; // 화면 뒷쪽
         }
