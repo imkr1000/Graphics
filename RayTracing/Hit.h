@@ -5,10 +5,10 @@
 
 namespace JYKim
 {
-	class Object;
-
     using namespace DirectX;
     using namespace SimpleMath;
+
+	class Object;
 
     class Hit
     {

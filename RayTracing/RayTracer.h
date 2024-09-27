@@ -22,14 +22,16 @@ namespace JYKim
         RayTracer(const int width, const int height)
             : width(width), height(height)
         {
-			auto sphere1 = make_shared<Sphere>(Vector3(1.0f, 0.0f, 1.5f), 0.4f);
-			sphere1->SetAmbient(Vector3(0.2f));
-			sphere1->SetDiffuse(Vector3(1.0f, 0.2f, 0.2f));
-			sphere1->SetSpecular(Vector3(0.5f));
-			//sphere1->SetAlpha(50.0f);
+			// sphere1은 강의 내용과는 무관합니다. 빼고 실습하셔도 됩니다.
+			//auto sphere1 = make_shared<Sphere>(Vector3(1.0f, 0.0f, 1.5f), 0.4f);
+			//sphere1->SetAmbient(Vector3(0.2f));
+			//sphere1->SetDiffuse(Vector3(1.0f, 0.2f, 0.2f));
+			//sphere1->SetSpecular(Vector3(0.5f));
+			////sphere1->SetAlpha(50.0f);
+			//
+			//objects.push_back(sphere1);
 
-			objects.push_back(sphere1);
-
+			// 간단한 이미지
 			size_t x = 4, y = 4;
 			vector<Color> textureImage(4 * 4);
 			for (int j = 0; j < 4; ++j)
@@ -44,6 +46,22 @@ namespace JYKim
 					else
 						textureImage[i + 4 * j] = Color(Vector3(1.0f, 1.0f, 1.0f) * (1.0f + j) * 0.25f);
 				}
+
+			auto imageTexture = make_shared<Texture>("_Textures/abstract.jpg");
+
+			const float uvRatio = 4.0f;
+
+			auto square = make_shared<Square>(Vector3(-2.0f, 2.0f, 2.0f), Vector3(2.0f), Vector3(2.0f, -2.0f, 2.0f), Vector3(-2.0f, -2.0f, 2.0f),
+				Vector2(0.0f, 0.0f), Vector2(uvRatio, 0.0f), Vector2(uvRatio, uvRatio), Vector2(0.0f, uvRatio));
+
+			square->amb = Vector3(1.0f);
+			square->diff = Vector3(1.0f);
+			square->spec = Vector3(0.0f);
+
+			square->ambTexture = imageTexture;
+			square->difTexture = imageTexture;
+
+			objects.push_back(square);
 
 			light = Light{ Vector3(0.0f, 1.0f, 0.5f) }; // 화면 뒷쪽
         }
@@ -64,7 +82,7 @@ namespace JYKim
 					closestHit = hit;
 
 					// Barycentric coordinated 복사
-					closestHit.w = hit.w;
+					closestHit.uv = hit.uv;
 
 					// 텍스쳐 좌표
 					// closestHit.uv = hit.uv;
@@ -100,20 +118,18 @@ namespace JYKim
 				Color pointColor;
 
 				// Amibent
-				pointColor = Color(hit.obj->amb);
-
-				if (hit.obj == this->tempObject) // 임시로 삼각형만 색을 직접 결정
+				if (hit.obj->ambTexture) // 임시로 삼각형만 색을 직접 결정
 				{
-					// Barycentric coordinates를 이용한 색 섞기(interpolation)
-					const auto color0 = Color(1.0f, 0.0f, 0.0f, 1.0f);
-					const auto color1 = Color(0.0f, 1.0f, 0.0f, 1.0f);
-					const auto color2 = Color(0.0f, 0.0f, 1.0f, 1.0f);
-
-					const float w0 = hit.w.x;
-					const float w1 = hit.w.y;
-					const float w2 = 1.0f - w0 - w1;
-
-					pointColor = color0 * w0 + color1 * w1 + color2 * w2;
+					//FindClosestCollision을 통해 물체와 ray의 충돌 지점에서 받아온 uv 값이 넘어와,
+					//결과적으로 shading할 때 텍스쳐로부터 uv좌표에 해당하는 색상 값을 Sampling할 때 사용된다
+					//Texture 클래스는 처음 다룬 이미지 클래스와 상당히 유사하다.
+					//SmaplePoint 실습
+					//pointColor = hit.obj->amb * hit.obj->ambTexture->SamplePoint(hit.uv);
+					pointColor = hit.obj->amb * hit.obj->ambTexture->SampleLinear(hit.uv);
+				}
+				else
+				{
+					pointColor = Color(hit.obj->amb);
 				}
 
 				// Diffuse
@@ -126,16 +142,23 @@ namespace JYKim
 				//	&& FindClosestCollision(shadowRay).distance <= (light.pos - hit.point).Length())
 				//	return Color(hit.obj->amb);
 
+				
+				const float diff = max(hit.normal.Dot(dirToLight), 0.0f);
+
+				// Specular
+				const Vector3 reflectDir = 2.0f * hit.normal.Dot(dirToLight) * hit.normal - dirToLight;
+				const float specualr = pow(max(-ray.dir.Dot(reflectDir), 0.0f), hit.obj->alpha);
+
+				if (hit.obj->difTexture)
 				{
-					const float diff = max(hit.normal.Dot(dirToLight), 0.0f);
-
-					// Specular
-					const Vector3 reflectDir = 2.0f * hit.normal.Dot(dirToLight) * hit.normal - dirToLight;
-					const float specualr = pow(max(-ray.dir.Dot(reflectDir), 0.0f), hit.obj->alpha);
-
-					pointColor += Color(diff * hit.obj->diff);
-					pointColor += Color(hit.obj->spec * specualr);
+					pointColor += Color(diff * hit.obj->diff * hit.obj->difTexture->SampleLinear(hit.uv));
 				}
+				else
+				{
+					pointColor += Color(diff * hit.obj->diff);
+				}
+				
+				pointColor += Color(hit.obj->spec * specualr);
 				
 				return pointColor;
 			}

@@ -43,7 +43,7 @@ namespace JYKim
 		Color GetClamped(int i, int j)
 		{
 			//가로 세로 최대치나 최소치를 넘어가면 넘어간 쪽의 마지막 색상 값이 반복된다.
-			i = std::clamp(j, 0, width - 1);
+			i = std::clamp(i, 0, width - 1);
 			j = std::clamp(j, 0, height - 1);
 
 			const float r = image[(i + width * j) * channels + 0] / 255.0f;
@@ -99,6 +99,7 @@ namespace JYKim
 
 			//return GetClamped(0, 0);
 			return GetClamped(i, j);
+			//return GetWrapped(i, j);
 		}
 
 		//DX, OpenGL에서 LinearSampling

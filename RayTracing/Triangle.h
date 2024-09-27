@@ -1,22 +1,20 @@
 #pragma once
 
-#include "Object.h"
-
 namespace JYKim
 {
 	class Triangle : public Object
 	{
 	public:
 		Vector3 v0, v1, v2;
-		// Vector2 uv0, uv1, uv2; // 뒤에서 텍스춰 좌표계로 사용
+		Vector2 uv0, uv1, uv2; // 뒤에서 텍스춰 좌표계로 사용
 
 	public:
-		Triangle() : v0(Vector3()), v1(Vector3()), v2(Vector3())
+		Triangle() : v0(Vector3()), v1(Vector3()), v2(Vector3()), uv0(Vector2(0.0f)), uv1(Vector2(0.0f)), uv2(Vector2(0.0f))
 		{
 		}
 
-		Triangle(const Vector3& v0, const Vector3& v1, const Vector3& v2)
-			: v0(v0), v1(v1), v2(v2)
+		Triangle(const Vector3& v0, const Vector3& v1, const Vector3& v2, Vector2 uv0 = Vector2(0.0f), Vector2 uv1 = Vector2(0.0f), Vector2 uv2 = Vector2(0.0f))
+			: v0(v0), v1(v1), v2(v2), uv0(uv0), uv1(uv1), uv2(uv2)
 		{
 		}
 
@@ -33,11 +31,10 @@ namespace JYKim
 				hit.point = point; // ray.start + ray.dir * t;
 				hit.normal = faceNormal;
 
-				// Barycentric coordinates 확인용
-				hit.w = Vector2(w0, w1);
-
-				// 텍스춰링(texturing)에서 사용
-				// hit.uv = uv0 * u + uv1 * v + uv2 * (1.0f - u - v);
+				//Barycentric Interpolation를 통해 텍스쳐 좌표를 Interpolation 한다.
+				//DX에서는 이미 다 구현되어 있어서 어떻게 동작하는지 알 수 없다.
+				//ray가 충돌할 때 uv좌표를 함께 계산
+				hit.uv = uv0 * w0 + uv1 * w1 + uv2 * (1.0f - w0 - w1); // 텍스춰 좌표
 			}
 
 			return hit;
