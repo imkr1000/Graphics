@@ -23,43 +23,27 @@ namespace JYKim
             : width(width), height(height)
         {
 			// sphere1은 강의 내용과는 무관합니다. 빼고 실습하셔도 됩니다.
-			//auto sphere1 = make_shared<Sphere>(Vector3(1.0f, 0.0f, 1.5f), 0.4f);
-			//sphere1->SetAmbient(Vector3(0.2f));
-			//sphere1->SetDiffuse(Vector3(1.0f, 0.2f, 0.2f));
-			//sphere1->SetSpecular(Vector3(0.5f));
-			////sphere1->SetAlpha(50.0f);
-			//
-			//objects.push_back(sphere1);
+			auto sphere1 = make_shared<Sphere>(Vector3(1.0f, 0.0f, 1.5f), 0.8f);
+			sphere1->SetAmbient(Vector3(0.2f));
+			sphere1->SetDiffuse(Vector3(1.0f, 0.2f, 0.2f));
+			sphere1->SetSpecular(Vector3(0.5f));
+			sphere1->SetAlpha(10.0f);
+			
+			objects.push_back(sphere1);
 
-			// 간단한 이미지
-			size_t x = 4, y = 4;
-			vector<Color> textureImage(4 * 4);
-			for (int j = 0; j < 4; ++j)
-				for (int i = 0; i < 4; ++i)
-				{
-					if (i % 4 == 0)
-						textureImage[i + 4 * j] = Color(Vector3(1.0f, 0.0f, 0.0f) * (1.0f + j) * 0.25f);
-					if (i % 4 == 1)
-						textureImage[i + 4 * j] = Color(Vector3(0.0f, 1.0f, 0.0f) * (1.0f + j) * 0.25f);
-					if (i % 4 == 2)
-						textureImage[i + 4 * j] = Color(Vector3(0.0f, 0.0f, 1.0f) * (1.0f + j) * 0.25f);
-					else
-						textureImage[i + 4 * j] = Color(Vector3(1.0f, 1.0f, 1.0f) * (1.0f + j) * 0.25f);
-				}
+			//auto imageTexture = make_shared<Texture>("_Textures/abstract.jpg");
 
-			auto imageTexture = make_shared<Texture>("_Textures/abstract.jpg");
-
-			const float uvRatio = 4.0f;
+			const float uvRatio = 1.0f;
 
 			auto square = make_shared<Square>(Vector3(-2.0f, 2.0f, 2.0f), Vector3(2.0f), Vector3(2.0f, -2.0f, 2.0f), Vector3(-2.0f, -2.0f, 2.0f),
 				Vector2(0.0f, 0.0f), Vector2(uvRatio, 0.0f), Vector2(uvRatio, uvRatio), Vector2(0.0f, uvRatio));
 
-			square->amb = Vector3(1.0f);
+			square->amb = Vector3(0.2f);
 			square->diff = Vector3(1.0f);
 			square->spec = Vector3(0.0f);
 
-			square->ambTexture = imageTexture;
-			square->difTexture = imageTexture;
+			//square->ambTexture = imageTexture;
+			//square->difTexture = imageTexture;
 
 			objects.push_back(square);
 
@@ -98,13 +82,19 @@ namespace JYKim
             // 스크린 좌표계는 [0, width-1] x [0, height-1]
             // 여기서 우리가 정의한 월드(World) 좌표계는 [-aspect, +aspect] x [-1, +1]
             // 화면비율 aspect = float(width) / height
-            float aspectRatio = float(width) / height;
-            //float transformedX = screenPosition.x / (width - 1) * aspectRatio * 2.0f - aspectRatio;
-            float transformedX = aspectRatio * (screenPosition.x / (width - 1) * 2.0f - 1.0f);
-            float transformedY = -screenPosition.y / (height - 1) * 2.0f + 1.0f;
+            //float aspectRatio = float(width) / height;
+            ////float transformedX = screenPosition.x / (width - 1) * aspectRatio * 2.0f - aspectRatio;
+            //float transformedX = aspectRatio * (screenPosition.x / (width - 1) * 2.0f - 1.0f);
+            //float transformedY = -screenPosition.y / (height - 1) * 2.0f + 1.0f;
+			//
+            //// 3차원 공간으로 확장 (z좌표는 0.0으로 가정)
+            //return Vector3(transformedX, transformedY, 0.0f);
+			const float xScale = 2.0f / this->width;
+			const float yScale = 2.0f / this->height;
+			const float aspect = float(this->width) / this->height;
 
-            // 3차원 공간으로 확장 (z좌표는 0.0으로 가정)
-            return Vector3(transformedX, transformedY, 0.0f);
+			// 3차원 공간으로 확장 (z좌표는 0.0)
+			return Vector3((screenPosition.x * xScale - 1.0f) * aspect, -screenPosition.y * yScale + 1.0f, 0.0f);
         }
 
         // 광선이 물체에 닿으면 그 물체의 색 반환
@@ -166,11 +156,45 @@ namespace JYKim
 			return Color();
         }
 
+		Color TraceRay2x2(const Vector3& eyePos, Vector3 pixelPos, const float dx, const int recursiveLevel) const
+		{
+			//recursiveLevel : 재귀 호출을 몇 번 할 거냐
+			if (recursiveLevel == 0)
+			{
+				Vector3 rayDir;
+				(pixelPos - eyePos).Normalize(rayDir);
+				Ray myRay{ pixelPos, rayDir };
+				return TraceRay(myRay);
+			}
+
+			const float subdx = dx * 0.5f;
+
+			Color pixelColor;
+			//처음 pixelPos는 픽셀의 좌하단 서브 픽셀의 포지션(서브 픽셀 중앙)으로 잡는다
+			pixelPos = Vector3(pixelPos.x - subdx * 0.5f, pixelPos.y - subdx * 0.5f, pixelPos.z);
+			//[수정] 강의 영상과 달리 subdx에 0.5f를 곱해줬습니다.
+
+			// ...
+			for (int y = 0; y < 2; ++y)
+				for (int x = 0; x < 2; ++x)
+				{
+					//4개의 서브 픽셀에 대한 포지션(중앙 위치)를 결정
+					Vector3 subPos(pixelPos.x + x * subdx, pixelPos.y + y * subdx, pixelPos.z);
+					//4개의 서브 픽셀에 대해 다시 traceRay2x2
+					pixelColor += TraceRay2x2(eyePos, subPos, subdx, recursiveLevel - 1);
+				}
+
+			//4개의 서브 픽셀 색 값이 pixelColor에 누적되었으므로 평균값 도출을 위해 4로 나눈다
+			return pixelColor * 0.25f;
+		}
+
         void Render(vector<Color>& pixels) const
         {
 			fill(pixels.begin(), pixels.end(), Color());
 
 			const Vector3 eyePos(0.0f, 0.0f, -1.5f);
+
+			const float dx = 2.0f / height;
 
 #pragma warning (disable : 6993)
 #pragma omp parallel for
@@ -184,14 +208,17 @@ namespace JYKim
 					// Orthographic projection (정투영) vs perspective projection (원근투영)
 					// 현재는 직교투영이기 때문에 원근감이 느껴지지 않는다(즉 물체와 픽셀의 거리에 따른 크기 차이가 없다)
                     //const auto rayDir = Vector3(0.0f, 0.0f, 1.0f); //직교투영
-					auto rayDir = pixelWorldPos - eyePos;
-					rayDir.Normalize();
-
-                    Ray pixelRay{ pixelWorldPos, rayDir };
+					//auto rayDir = pixelWorldPos - eyePos;
+					//rayDir.Normalize();
+					//
+                    //Ray pixelRay{ pixelWorldPos, rayDir };
 					
 					// index에는 size_t형 사용 (index가 음수일 수는 없으니까)
 					// traceRay()의 반환형은 vec3 (RGB), A는 불필요
-                    pixels[size_t(x + width * y)] = TraceRay(pixelRay);
+                    //pixels[size_t(x + width * y)] = TraceRay(pixelRay);
+
+					//const auto pixelColor = TraceRay2x2(eyePos, pixelWorldPos, dx, 3);
+					pixels[size_t(x + width * y)] = TraceRay2x2(eyePos, pixelWorldPos, dx, 3);
                 }
 #pragma warning (default : 6993)
         }
