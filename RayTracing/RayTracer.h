@@ -22,32 +22,44 @@ namespace JYKim
         RayTracer(const int width, const int height)
             : width(width), height(height)
         {
-			// sphere1은 강의 내용과는 무관합니다. 빼고 실습하셔도 됩니다.
-			auto sphere1 = make_shared<Sphere>(Vector3(1.0f, 0.0f, 1.5f), 0.8f);
-			sphere1->SetAmbient(Vector3(0.2f));
-			sphere1->SetDiffuse(Vector3(1.0f, 0.2f, 0.2f));
-			sphere1->SetSpecular(Vector3(0.5f));
+			auto sphere1 = make_shared<Sphere>(Vector3(0.0f, -0.1f, 1.5f), 1.0f);
+			sphere1->SetAmbient(Vector3(0.1f));
+			sphere1->SetDiffuse(Vector3(1.0f, 0.0f, 0.0f));
+			sphere1->SetSpecular(Vector3(1.0f));
 			sphere1->SetAlpha(10.0f);
+			sphere1->reflection = 0.5f;
+			sphere1->transparency = 0.0f;
 			
 			objects.push_back(sphere1);
 
-			//auto imageTexture = make_shared<Texture>("_Textures/abstract.jpg");
+			auto sphere2 = make_shared<Sphere>(Vector3(1.2f, -0.1f, 0.5f), 0.4f);
+			sphere2->SetAmbient(Vector3(0.0f));
+			sphere2->SetDiffuse(Vector3(0.0f, 0.0f, 1.0f));
+			sphere2->SetSpecular(Vector3(1.0f));
+			sphere2->SetAlpha(50.0f);
+			sphere2->reflection = 0.0f;
+
+			objects.push_back(sphere2);
+
+			auto groundTexture = make_shared<Texture>("_Textures/abstract.jpg");
 
 			const float uvRatio = 1.0f;
 
-			auto square = make_shared<Square>(Vector3(-2.0f, 2.0f, 2.0f), Vector3(2.0f), Vector3(2.0f, -2.0f, 2.0f), Vector3(-2.0f, -2.0f, 2.0f),
+			auto ground = make_shared<Square>(Vector3(-10.0f, -1.2f, 0.0f), Vector3(-10.0f, -1.2f, 10.0f), Vector3(10.0f, -1.2f, 10.0f), Vector3(10.0f, -1.2f, 0.0f),
 				Vector2(0.0f, 0.0f), Vector2(uvRatio, 0.0f), Vector2(uvRatio, uvRatio), Vector2(0.0f, uvRatio));
 
-			square->amb = Vector3(0.2f);
-			square->diff = Vector3(1.0f);
-			square->spec = Vector3(0.0f);
+			ground->amb = Vector3(1.0f);
+			ground->diff = Vector3(1.0f);
+			ground->spec = Vector3(1.0f);
+			ground->alpha = 10.0f;
+			ground->reflection = 0.0f;
 
-			//square->ambTexture = imageTexture;
-			//square->difTexture = imageTexture;
+			ground->ambTexture = groundTexture;
+			ground->difTexture = groundTexture;
 
-			objects.push_back(square);
+			objects.push_back(ground);
 
-			light = Light{ Vector3(0.0f, 1.0f, 0.5f) }; // 화면 뒷쪽
+			light = Light{ Vector3(0.0f, 0.5f, -0.5f) }; // 화면 뒷쪽
         }
 
 		Hit FindClosestCollision(const Ray& ray) const
@@ -65,11 +77,8 @@ namespace JYKim
 					hit.obj = obj;
 					closestHit = hit;
 
-					// Barycentric coordinated 복사
-					closestHit.uv = hit.uv;
-
 					// 텍스쳐 좌표
-					// closestHit.uv = hit.uv;
+					closestHit.uv = hit.uv;
 				}
 			}
 
@@ -98,14 +107,15 @@ namespace JYKim
         }
 
         // 광선이 물체에 닿으면 그 물체의 색 반환
-        Color TraceRay(const Ray& ray) const
+        Color TraceRay(const Ray& ray, int recurseLevel) const
         {
 			// Render first hit
 			const Hit& hit = FindClosestCollision(ray);
 
 			if (hit.distance >= 0.0f)
 			{
-				Color pointColor;
+				Color color;
+				Color phongColor;
 
 				// Amibent
 				if (hit.obj->ambTexture) // 임시로 삼각형만 색을 직접 결정
@@ -115,11 +125,11 @@ namespace JYKim
 					//Texture 클래스는 처음 다룬 이미지 클래스와 상당히 유사하다.
 					//SmaplePoint 실습
 					//pointColor = hit.obj->amb * hit.obj->ambTexture->SamplePoint(hit.uv);
-					pointColor = hit.obj->amb * hit.obj->ambTexture->SampleLinear(hit.uv);
+					phongColor = hit.obj->amb * hit.obj->ambTexture->SampleLinear(hit.uv);
 				}
 				else
 				{
-					pointColor = Color(hit.obj->amb);
+					phongColor = Color(hit.obj->amb);
 				}
 
 				// Diffuse
@@ -135,22 +145,51 @@ namespace JYKim
 				
 				const float diff = max(hit.normal.Dot(dirToLight), 0.0f);
 
-				// Specular
-				const Vector3 reflectDir = 2.0f * hit.normal.Dot(dirToLight) * hit.normal - dirToLight;
-				const float specualr = pow(max(-ray.dir.Dot(reflectDir), 0.0f), hit.obj->alpha);
-
 				if (hit.obj->difTexture)
 				{
-					pointColor += Color(diff * hit.obj->diff * hit.obj->difTexture->SampleLinear(hit.uv));
+					phongColor += Color(diff * hit.obj->diff * hit.obj->difTexture->SampleLinear(hit.uv));
 				}
 				else
 				{
-					pointColor += Color(diff * hit.obj->diff);
+					phongColor += Color(diff * hit.obj->diff);
 				}
+
+				// Specular
+				const Vector3 reflectDir = 2.0f * hit.normal.Dot(dirToLight) * hit.normal - dirToLight;
+				const float specualr = pow(max(-ray.dir.Dot(reflectDir), 0.0f), hit.obj->alpha);
 				
-				pointColor += Color(hit.obj->spec * specualr);
+				phongColor += Color(hit.obj->spec * specualr);
+
+				//최종 색상이 될 color에 phongColor와 reflection을 적정 비율로 섞어서 누적)
+				//1.0f(원래 광선의 비율) - 반사량(비율) - 투과량(비율)
+				//여기서는 투과량은 0으로 가정(물체가 투명할 경우 투과량이 있음)
+				color += phongColor * (1.0f - hit.obj->reflection - hit.obj->transparency);
 				
-				return pointColor;
+				if (hit.obj->reflection)
+				{
+					// 여기에 반사 구현
+					// 수치 오류 주의
+					// 반사광이 반환해준 색을 더할 때의 비율은 hit.obj->reflection
+
+					//const vec3 reflectedDirection = ...
+					//color += ...
+
+					//const vec3 m = ray.dir - glm::dot(hit.normal, ray.dir) * hit.normal;
+					//-d + 2m
+					//2m = 2.0f * ray.dir - dot(hit.normal, ray.dir) * hit.normal * 2.0f;
+					//2m - d = ray.dir - dot(hit.normal, ray.dir) * hit.normal * 2.0f;
+					Vector3 reflectedDirection;
+					(ray.dir - ray.dir.Dot(hit.normal) * hit.normal * 2.0f).Normalize(reflectedDirection);
+					Ray reflectionRay = { hit.point + reflectedDirection * 1e-4f, reflectedDirection };
+					color += hit.obj->reflection * TraceRay(reflectionRay, recurseLevel - 1);
+				}
+
+				if (hit.obj->transparency)
+				{
+					// 투명한 물체의 굴절 처리
+				}
+
+				return color;
 			}
 
 			return Color();
@@ -164,7 +203,7 @@ namespace JYKim
 				Vector3 rayDir;
 				(pixelPos - eyePos).Normalize(rayDir);
 				Ray myRay{ pixelPos, rayDir };
-				return TraceRay(myRay);
+				return TraceRay(myRay, 5);
 			}
 
 			const float subdx = dx * 0.5f;
@@ -210,20 +249,19 @@ namespace JYKim
                     //const auto rayDir = Vector3(0.0f, 0.0f, 1.0f); //직교투영
 
 					//원근투영 적용
-					//auto rayDir = pixelWorldPos - eyePos;
-					//rayDir.Normalize();
-					//
-                    //Ray pixelRay{ pixelWorldPos, rayDir };
-					//
-					//// index에는 size_t형 사용 (index가 음수일 수는 없으니까)
-					//// traceRay()의 반환형은 vec3 (RGB), A는 불필요
-                    //pixels[size_t(x + width * y)] = TraceRay(pixelRay);
+					auto rayDir = pixelWorldPos - eyePos;
+					rayDir.Normalize();
+					
+                    Ray pixelRay{ pixelWorldPos, rayDir };
+					
+					// index에는 size_t형 사용 (index가 음수일 수는 없으니까)
+					// traceRay()의 반환형은 vec3 (RGB), A는 불필요
+                    pixels[size_t(x + width * y)] = TraceRay(pixelRay, 5);
 
 					//SuperSampling 적용
-					Vector3 pixelColor;
-					TraceRay2x2(eyePos, pixelWorldPos, dx, 3).ToVector3().Clamp(Vector3(0.0f), Vector3(1.0f), pixelColor);
-					//const auto pixelColor = TraceRay2x2(eyePos, pixelWorldPos, dx, 3);
-					pixels[size_t(x + width * y)] = Color(pixelColor);
+					//Vector3 pixelColor;
+					//TraceRay2x2(eyePos, pixelWorldPos, dx, 3).ToVector3().Clamp(Vector3(0.0f), Vector3(1.0f), pixelColor);
+					//pixels[size_t(x + width * y)] = Color(pixelColor);
                 }
 #pragma warning (default : 6993)
         }
