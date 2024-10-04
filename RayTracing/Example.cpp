@@ -5,7 +5,7 @@
 #include <omp.h>
 
 Example::Example(HWND window, UINT width, UINT height)
-    : rayTracer(width, height)
+    : rayTracer(width / 8, height / 8)
 {
     Initialize(window, width, height);
 

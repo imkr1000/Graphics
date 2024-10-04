@@ -208,15 +208,18 @@ namespace JYKim
 					// Orthographic projection (정투영) vs perspective projection (원근투영)
 					// 현재는 직교투영이기 때문에 원근감이 느껴지지 않는다(즉 물체와 픽셀의 거리에 따른 크기 차이가 없다)
                     //const auto rayDir = Vector3(0.0f, 0.0f, 1.0f); //직교투영
-					//auto rayDir = pixelWorldPos - eyePos;
-					//rayDir.Normalize();
-					//
-                    //Ray pixelRay{ pixelWorldPos, rayDir };
+
+					//원근투영 적용
+					auto rayDir = pixelWorldPos - eyePos;
+					rayDir.Normalize();
 					
-					// index에는 size_t형 사용 (index가 음수일 수는 없으니까)
-					// traceRay()의 반환형은 vec3 (RGB), A는 불필요
+                    Ray pixelRay{ pixelWorldPos, rayDir };
+					//
+					//// index에는 size_t형 사용 (index가 음수일 수는 없으니까)
+					//// traceRay()의 반환형은 vec3 (RGB), A는 불필요
                     //pixels[size_t(x + width * y)] = TraceRay(pixelRay);
 
+					//SuperSampling 적용
 					//const auto pixelColor = TraceRay2x2(eyePos, pixelWorldPos, dx, 3);
 					pixels[size_t(x + width * y)] = TraceRay2x2(eyePos, pixelWorldPos, dx, 3);
                 }
