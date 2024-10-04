@@ -149,8 +149,8 @@ void Example::Initialize(HWND window, UINT width, UINT height)
     // Create texture and rendertarget
     D3D11_TEXTURE2D_DESC textureDesc;
     ZeroMemory(&textureDesc, sizeof(textureDesc));
-    textureDesc.Width = width;
-    textureDesc.Height = height;
+    textureDesc.Width = rayTracer.width;
+    textureDesc.Height = rayTracer.height;
     textureDesc.MipLevels = 1;
     textureDesc.ArraySize = 1;
     textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
@@ -219,7 +219,7 @@ void Example::Initialize(HWND window, UINT width, UINT height)
 void Example::Update()
 {
     // 화면을 배경 색으로 초기화
-    std::vector<Color> pixels(width * height, backgroundColor);
+    std::vector<Color> pixels(rayTracer.width * rayTracer.height, backgroundColor);
 
     rayTracer.Render(pixels);
 
