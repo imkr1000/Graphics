@@ -210,18 +210,20 @@ namespace JYKim
                     //const auto rayDir = Vector3(0.0f, 0.0f, 1.0f); //직교투영
 
 					//원근투영 적용
-					auto rayDir = pixelWorldPos - eyePos;
-					rayDir.Normalize();
-					
-                    Ray pixelRay{ pixelWorldPos, rayDir };
+					//auto rayDir = pixelWorldPos - eyePos;
+					//rayDir.Normalize();
+					//
+                    //Ray pixelRay{ pixelWorldPos, rayDir };
 					//
 					//// index에는 size_t형 사용 (index가 음수일 수는 없으니까)
 					//// traceRay()의 반환형은 vec3 (RGB), A는 불필요
                     //pixels[size_t(x + width * y)] = TraceRay(pixelRay);
 
 					//SuperSampling 적용
+					Vector3 pixelColor;
+					TraceRay2x2(eyePos, pixelWorldPos, dx, 3).ToVector3().Clamp(Vector3(0.0f), Vector3(1.0f), pixelColor);
 					//const auto pixelColor = TraceRay2x2(eyePos, pixelWorldPos, dx, 3);
-					pixels[size_t(x + width * y)] = TraceRay2x2(eyePos, pixelWorldPos, dx, 3);
+					pixels[size_t(x + width * y)] = Color(pixelColor);
                 }
 #pragma warning (default : 6993)
         }
