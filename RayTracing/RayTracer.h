@@ -11,7 +11,7 @@ namespace JYKim
     
     class RayTracer
     {
-    private:
+    public:
         int width, height;
 		Light light;
         //shared_ptr<Sphere> sphere;
