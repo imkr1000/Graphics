@@ -13,7 +13,7 @@ namespace JYKim
     
     class RayTracer
     {
-    private:
+    public:
         int width, height;
 		Light light;
         vector<shared_ptr<Object>> objects;
