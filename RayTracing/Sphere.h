@@ -53,6 +53,10 @@ namespace JYKim
 				hit.distance = min(d1, d2);
 				//hit.distance = d2 >= 0 ? d2 : d1;
 
+				// 물체 안에서 다시 밖으로 나가면서 충돌 가능
+				if (hit.distance < 0.0f)
+					hit.distance = max(d1, d2);
+
 				hit.point = ray.start + ray.dir * hit.distance;
 				hit.normal = hit.point - center;
 				hit.normal.Normalize();

@@ -23,29 +23,20 @@ namespace JYKim
             : width(width), height(height)
         {
 			auto sphere1 = make_shared<Sphere>(Vector3(0.0f, -0.1f, 1.5f), 1.0f);
-			sphere1->SetAmbient(Vector3(0.1f));
-			sphere1->SetDiffuse(Vector3(1.0f, 0.0f, 0.0f));
-			sphere1->SetSpecular(Vector3(1.0f));
-			sphere1->SetAlpha(10.0f);
-			sphere1->reflection = 0.5f;
-			sphere1->transparency = 0.0f;
+			sphere1->SetAmbient(Vector3(0.2f));
+			sphere1->SetDiffuse(Vector3(0.0f, 0.0f, 1.0f));
+			sphere1->SetSpecular(Vector3(0.0f));
+			sphere1->SetAlpha(50.0f);
+			sphere1->reflection = 0.0f;
+			sphere1->transparency = 1.0f;
 			
 			objects.push_back(sphere1);
-
-			auto sphere2 = make_shared<Sphere>(Vector3(1.2f, -0.1f, 0.5f), 0.4f);
-			sphere2->SetAmbient(Vector3(0.0f));
-			sphere2->SetDiffuse(Vector3(0.0f, 0.0f, 1.0f));
-			sphere2->SetSpecular(Vector3(1.0f));
-			sphere2->SetAlpha(50.0f);
-			sphere2->reflection = 0.0f;
-
-			objects.push_back(sphere2);
 
 			auto groundTexture = make_shared<Texture>("_Textures/abstract.jpg");
 
 			const float uvRatio = 1.0f;
 
-			auto ground = make_shared<Square>(Vector3(-10.0f, -1.2f, 0.0f), Vector3(-10.0f, -1.2f, 10.0f), Vector3(10.0f, -1.2f, 10.0f), Vector3(10.0f, -1.2f, 0.0f),
+			auto ground = make_shared<Square>(Vector3(-10.0f, -1.5f, 0.0f), Vector3(-10.0f, -1.5f, 10.0f), Vector3(10.0f, -1.5f, 10.0f), Vector3(10.0f, -1.5f, 0.0f),
 				Vector2(0.0f, 0.0f), Vector2(uvRatio, 0.0f), Vector2(uvRatio, uvRatio), Vector2(0.0f, uvRatio));
 
 			ground->amb = Vector3(1.0f);
@@ -53,11 +44,24 @@ namespace JYKim
 			ground->spec = Vector3(1.0f);
 			ground->alpha = 10.0f;
 			ground->reflection = 0.0f;
-
 			ground->ambTexture = groundTexture;
 			ground->difTexture = groundTexture;
 
 			objects.push_back(ground);
+
+			auto backgroundTexture = make_shared<Texture>("_Textures/background.jpg");
+			auto background = make_shared<Square>(Vector3(-10.0f, 10.0f, 10.0f), Vector3(10.0f, 10.0f, 10.0f), Vector3(10.0f, -10.0f, 10.0f), Vector3(-10.0f, -10.0f, 10.0f),
+				Vector2(0.0f, 0.0f), Vector2(uvRatio, 0.0f), Vector2(uvRatio, uvRatio), Vector2(0.0f, uvRatio));
+
+			background->amb = Vector3(1.0f);
+			background->diff = Vector3(0.0f);
+			background->spec = Vector3(0.0f);
+			background->alpha = 10.0f;
+			background->reflection = 0.0f;
+			background->ambTexture = backgroundTexture;
+			background->difTexture = backgroundTexture;
+
+			objects.push_back(background);
 
 			light = Light{ Vector3(0.0f, 0.5f, -0.5f) }; // 화면 뒷쪽
         }
@@ -109,6 +113,9 @@ namespace JYKim
         // 광선이 물체에 닿으면 그 물체의 색 반환
         Color TraceRay(const Ray& ray, int recurseLevel) const
         {
+			if (recurseLevel < 0)
+				return Color();
+
 			// Render first hit
 			const Hit& hit = FindClosestCollision(ray);
 
@@ -125,11 +132,11 @@ namespace JYKim
 					//Texture 클래스는 처음 다룬 이미지 클래스와 상당히 유사하다.
 					//SmaplePoint 실습
 					//pointColor = hit.obj->amb * hit.obj->ambTexture->SamplePoint(hit.uv);
-					phongColor = hit.obj->amb * hit.obj->ambTexture->SampleLinear(hit.uv);
+					phongColor += hit.obj->amb * hit.obj->ambTexture->SampleLinear(hit.uv);
 				}
 				else
 				{
-					phongColor = Color(hit.obj->amb);
+					phongColor += Color(hit.obj->amb);
 				}
 
 				// Diffuse
@@ -179,14 +186,61 @@ namespace JYKim
 					//2m = 2.0f * ray.dir - dot(hit.normal, ray.dir) * hit.normal * 2.0f;
 					//2m - d = ray.dir - dot(hit.normal, ray.dir) * hit.normal * 2.0f;
 					Vector3 reflectedDirection;
-					(ray.dir - ray.dir.Dot(hit.normal) * hit.normal * 2.0f).Normalize(reflectedDirection);
+					(-ray.dir.Dot(hit.normal) * hit.normal * 2.0f + ray.dir).Normalize(reflectedDirection);
 					Ray reflectionRay = { hit.point + reflectedDirection * 1e-4f, reflectedDirection };
 					color += hit.obj->reflection * TraceRay(reflectionRay, recurseLevel - 1);
 				}
 
+				// 참고
+				// https://samdriver.xyz/article/refraction-sphere (그림들이 좋아요)
+				// https://www.scratchapixel.com/lessons/3d-basic-rendering/introduction-to-shading/reflection-refraction-fresnel (오류있음)
+				// https://web.cse.ohio-state.edu/~shen.94/681/Site/Slides_files/reflection_refraction.pdf (슬라이드가 보기 좋지는 않지만 정확해요)
 				if (hit.obj->transparency)
 				{
 					// 투명한 물체의 굴절 처리
+
+					const float ior = 1.5f; // Index of refraction (유리: 1.5, 물: 1.3)
+					
+					float eta; // sinTheta1 / sinTheta2
+					Vector3 normal;
+
+					if (ray.dir.Dot(hit.normal) < 0.0f) // 밖에서 안으로 들어가는 경우 (예: 공기->유리)
+					{
+						eta = ior;
+						normal = hit.normal;
+					}
+					else // 안에서 밖으로 나가는 경우 (예: 유리->공기)
+					{
+						eta = 1.0f / ior;
+						normal = -hit.normal;
+					}
+
+					// const float cosTheta1 = ... ;
+					// const float sinTheta1 = ... ; // cos^2 + sin^2 = 1
+					// const float sinTheta2 = ... ;
+					// const float cosTheta2 = ... ;
+					const float cosTheta1 = normal.Dot(-ray.dir);
+					const float sinTheta1 = sqrtf(1.0f - cosTheta1 * cosTheta1);
+					const float sinTheta2 = sinTheta1 / eta;
+					const float cosTheta2 = sqrtf(1.0f - sinTheta2 * sinTheta2);
+
+					// const Vector3 m = glm::normalize(...);
+					// const Vector3 a = ...;
+					// const Vector3 b = ...;
+					// const Vector3 refractedDirection = glm::normalize(a + b); // transmission
+
+					Vector3 m;
+					(ray.dir - normal.Dot(ray.dir) * normal).Normalize(m);
+					const Vector3 a = -normal * cosTheta2;
+					const Vector3 b = m * sinTheta2;
+					Vector3 refractedDirection;
+					(a + b).Normalize(refractedDirection);
+
+					Ray refractedRay{ hit.point + refractedDirection * 1e-4f, refractedDirection };
+					// color += ...;
+					color += TraceRay(refractedRay, recurseLevel - 1) * hit.obj->transparency;
+
+					// Fresnel 효과는 생략되었습니다.
 				}
 
 				return color;
