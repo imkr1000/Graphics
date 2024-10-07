@@ -22,48 +22,119 @@ namespace JYKim
         RayTracer(const int width, const int height)
             : width(width), height(height)
         {
-			auto sphere1 = make_shared<Sphere>(Vector3(0.0f, -0.1f, 1.5f), 1.0f);
-			sphere1->SetAmbient(Vector3(0.2f));
-			sphere1->SetDiffuse(Vector3(0.0f, 0.0f, 1.0f));
-			sphere1->SetSpecular(Vector3(0.0f));
-			sphere1->SetAlpha(50.0f);
-			sphere1->reflection = 0.0f;
-			sphere1->transparency = 1.0f;
+			auto sphere1 = make_shared<Sphere>(Vector3(0.1f, -0.5f, 2.0f), 1.0f);
+			sphere1->SetAmbient(Vector3(0.0f));
+			sphere1->SetDiffuse(Vector3(1.0f, 0.0f, 0.0f));
+			sphere1->SetSpecular(Vector3(1.0f));
+			sphere1->SetAlpha(100.0f);
+			sphere1->reflection = 0.6f;
+			sphere1->transparency = 0.0f;
 			
 			objects.push_back(sphere1);
 
 			auto groundTexture = make_shared<Texture>("_Textures/abstract.jpg");
 
-			const float uvRatio = 1.0f;
+			const float uvRatio = 10.0f;
 
-			auto ground = make_shared<Square>(Vector3(-10.0f, -1.5f, 0.0f), Vector3(-10.0f, -1.5f, 10.0f), Vector3(10.0f, -1.5f, 10.0f), Vector3(10.0f, -1.5f, 0.0f),
+			auto ground = make_shared<Square>(Vector3(-5.0f, -1.5f, -5.0f), Vector3(-5.0f, -1.5f, 5.0f), Vector3(5.0f, -1.5f, 5.0f), Vector3(5.0f, -1.5f, -5.0f),
 				Vector2(0.0f, 0.0f), Vector2(uvRatio, 0.0f), Vector2(uvRatio, uvRatio), Vector2(0.0f, uvRatio));
 
 			ground->amb = Vector3(1.0f);
 			ground->diff = Vector3(1.0f);
 			ground->spec = Vector3(1.0f);
 			ground->alpha = 10.0f;
-			ground->reflection = 0.0f;
+			ground->reflection = 0.6f;
+			ground->transparency = 0.3f;
 			ground->ambTexture = groundTexture;
 			ground->difTexture = groundTexture;
 
 			objects.push_back(ground);
 
-			auto backgroundTexture = make_shared<Texture>("_Textures/background.jpg");
-			auto background = make_shared<Square>(Vector3(-10.0f, 10.0f, 10.0f), Vector3(10.0f, 10.0f, 10.0f), Vector3(10.0f, -10.0f, 10.0f), Vector3(-10.0f, -10.0f, 10.0f),
-				Vector2(0.0f, 0.0f), Vector2(uvRatio, 0.0f), Vector2(uvRatio, uvRatio), Vector2(0.0f, uvRatio));
+			auto squareTexturePosX = std::make_shared<Texture>("SaintPetersBasilica/posx.jpg");
+			auto squarePosX = make_shared<Square>(Vector3(10.0f, 10.0f, 10.0f), Vector3(10.0f, 10.0f, -10.0f), Vector3(10.0f, -10.0f, -10.0f), Vector3(10.0f, -10.0f, 10.0f),
+				Vector2(0.0f, 0.0f), Vector2(1.0f, 0.0f), Vector2(1.0f, 1.0f), Vector2(0.0f, 1.0f));
 
-			background->amb = Vector3(1.0f);
-			background->diff = Vector3(0.0f);
-			background->spec = Vector3(0.0f);
-			background->alpha = 10.0f;
-			background->reflection = 0.0f;
-			background->ambTexture = backgroundTexture;
-			background->difTexture = backgroundTexture;
+			squarePosX->amb = Vector3(1.0f);
+			squarePosX->diff = Vector3(0.0f);
+			squarePosX->spec = Vector3(0.0f);
+			squarePosX->alpha = 10.0f;
+			squarePosX->reflection = 0.0f;
+			squarePosX->ambTexture = squareTexturePosX;
+			squarePosX->difTexture = squareTexturePosX;
 
-			objects.push_back(background);
+			objects.push_back(squarePosX);
 
-			light = Light{ Vector3(0.0f, 0.5f, -0.5f) }; // È­¸é µÞÂÊ
+			auto squareTexturePosY = std::make_shared<Texture>("SaintPetersBasilica/posy.jpg");
+			auto squarePosY = make_shared<Square>(Vector3(-10.0f, 10.0f, -10.0f), Vector3(10.0f, 10.0f, -10.0f), Vector3(10.0f, 10.0f, 10.0f), Vector3(-10.0f, 10.0f, 10.0f),
+				Vector2(0.0f, 0.0f), Vector2(1.0f, 0.0f), Vector2(1.0f, 1.0f), Vector2(0.0f, 1.0f));
+
+			squarePosY->amb = Vector3(1.0f);
+			squarePosY->diff = Vector3(0.0f);
+			squarePosY->spec = Vector3(0.0f);
+			squarePosY->alpha = 10.0f;
+			squarePosY->reflection = 0.0f;
+			squarePosY->ambTexture = squareTexturePosY;
+			squarePosY->difTexture = squareTexturePosY;
+
+			objects.push_back(squarePosY);
+
+			auto squareTexturePosZ = std::make_shared<Texture>("SaintPetersBasilica/posz.jpg");
+			auto squarePosZ = make_shared<Square>(Vector3(-10.0f, 10.0f, 10.0f), Vector3(10.0f, 10.0f, 10.0f), Vector3(10.0f, -10.0f, 10.0f), Vector3(-10.0f, -10.0f, 10.0f),
+				Vector2(0.0f, 0.0f), Vector2(1.0f, 0.0f), Vector2(1.0f, 1.0f), Vector2(0.0f, 1.0f));
+
+			squarePosZ->amb = Vector3(1.0f);
+			squarePosZ->diff = Vector3(0.0f);
+			squarePosZ->spec = Vector3(0.0f);
+			squarePosZ->alpha = 10.0f;
+			squarePosZ->reflection = 0.0f;
+			squarePosZ->ambTexture = squareTexturePosZ;
+			squarePosZ->difTexture = squareTexturePosZ;
+
+			objects.push_back(squarePosZ);
+
+			auto squareTextureNegX = std::make_shared<Texture>("SaintPetersBasilica/negx.jpg");
+			auto squareNegX = make_shared<Square>(Vector3(-10.0f, 10.0f, -10.0f), Vector3(-10.0f, 10.0f, 10.0f), Vector3(-10.0f, -10.0f, 10.0f), Vector3(-10.0f, -10.0f, -10.0f),
+				Vector2(0.0f, 0.0f), Vector2(1.0f, 0.0f), Vector2(1.0f, 1.0f), Vector2(0.0f, 1.0f));
+
+			squareNegX->amb = Vector3(1.0f);
+			squareNegX->diff = Vector3(0.0f);
+			squareNegX->spec = Vector3(0.0f);
+			squareNegX->alpha = 10.0f;
+			squareNegX->reflection = 0.0f;
+			squareNegX->ambTexture = squareTextureNegX;
+			squareNegX->difTexture = squareTextureNegX;
+
+			objects.push_back(squareNegX);
+
+			auto squareTextureNegY = std::make_shared<Texture>("SaintPetersBasilica/negy.jpg");
+			auto squareNegY = make_shared<Square>(Vector3(-10.0f, -10.0f, 10.0f), Vector3(10.0f, -10.0f, 10.0f), Vector3(10.0f, -10.0f, -10.0f), Vector3(-10.0f, -10.0f, -10.0f),
+				Vector2(0.0f, 0.0f), Vector2(1.0f, 0.0f), Vector2(1.0f, 1.0f), Vector2(0.0f, 1.0f));
+
+			squareNegY->amb = Vector3(1.0f);
+			squareNegY->diff = Vector3(0.0f);
+			squareNegY->spec = Vector3(0.0f);
+			squareNegY->alpha = 10.0f;
+			squareNegY->reflection = 0.0f;
+			squareNegY->ambTexture = squareTextureNegY;
+			squareNegY->difTexture = squareTextureNegY;
+
+			objects.push_back(squareNegY);
+
+			auto squareTextureNegZ = std::make_shared<Texture>("SaintPetersBasilica/negz.jpg");
+			auto squareNegZ = make_shared<Square>(Vector3(10.0f, 10.0f, -10.0f), Vector3(-10.0f, 10.0f, -10.0f), Vector3(-10.0f, -10.0f, -10.0f), Vector3(10.0f, -10.0f, -10.0f),
+				Vector2(0.0f, 0.0f), Vector2(1.0f, 0.0f), Vector2(1.0f, 1.0f), Vector2(0.0f, 1.0f));
+
+			squareNegZ->amb = Vector3(1.0f);
+			squareNegZ->diff = Vector3(0.0f);
+			squareNegZ->spec = Vector3(0.0f);
+			squareNegZ->alpha = 10.0f;
+			squareNegZ->reflection = 0.0f;
+			squareNegZ->ambTexture = squareTextureNegZ;
+			squareNegZ->difTexture = squareTextureNegZ;
+
+			objects.push_back(squareNegZ);
+
+			light = Light{ Vector3(0.0f, 0.3f, -0.5f) }; // È­¸é µÞÂÊ
         }
 
 		Hit FindClosestCollision(const Ray& ray) const
