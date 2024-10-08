@@ -100,8 +100,11 @@ namespace JYKim
 				dirToLight.Normalize();
 
 				Ray shadowRay = { hit.point + 1e-4f * dirToLight, dirToLight };
-				if (FindClosestCollision(shadowRay).obj != nullptr
-					&& FindClosestCollision(shadowRay).distance <= (light.pos - hit.point).Length())
+
+				const auto& shadowHit = FindClosestCollision(shadowRay);
+
+				if (shadowHit.obj != nullptr
+					&& shadowHit.distance <= (light.pos - hit.point).Length())
 					return Color(hit.obj->amb);
 
 				const float diff = max(hit.normal.Dot(dirToLight), 0.0f);
