@@ -76,8 +76,10 @@ namespace JYKim
 			const Color& c00, const Color& c10, const Color& c01, const Color& c11)
 		{
 			// ...
-			const Color a = c00 * (1.0f - dx) + c10 * dx;
-			const Color b = c01 * (1.0f - dx) + c11 * dx;
+			Color a = c00 * (1.0f - dx) + c10 * dx;
+			a.w = 1.0f;
+			Color b = c01 * (1.0f - dx) + c11 * dx;
+			b.w = 1.0f;
 
 			return a * (1.0f - dy) + b * dy;
 		}
@@ -98,8 +100,8 @@ namespace JYKim
 			const int j = int(round(xy.y));
 
 			//return GetClamped(0, 0);
-			return GetClamped(i, j);
-			//return GetWrapped(i, j);
+			//return GetClamped(i, j);
+			return GetWrapped(i, j);
 		}
 
 		//DX, OpenGL¿¡¼­ LinearSampling

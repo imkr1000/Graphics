@@ -39,14 +39,15 @@ namespace JYKim
 				{
 					if (i % 4 == 0)
 						textureImage[i + 4 * j] = Color(Vector3(1.0f, 0.0f, 0.0f) * (1.0f + j) * 0.25f);
-					if (i % 4 == 1)
+					else if (i % 4 == 1)
 						textureImage[i + 4 * j] = Color(Vector3(0.0f, 1.0f, 0.0f) * (1.0f + j) * 0.25f);
-					if (i % 4 == 2)
+					else if (i % 4 == 2)
 						textureImage[i + 4 * j] = Color(Vector3(0.0f, 0.0f, 1.0f) * (1.0f + j) * 0.25f);
 					else
 						textureImage[i + 4 * j] = Color(Vector3(1.0f, 1.0f, 1.0f) * (1.0f + j) * 0.25f);
 				}
 
+			//auto imageTexture = make_shared<Texture>(4, 4, textureImage);
 			auto imageTexture = make_shared<Texture>("_Textures/abstract.jpg");
 
 			const float uvRatio = 4.0f;
@@ -151,6 +152,7 @@ namespace JYKim
 
 				if (hit.obj->difTexture)
 				{
+					//pointColor += Color(diff * hit.obj->diff * hit.obj->difTexture->SamplePoint(hit.uv));
 					pointColor += Color(diff * hit.obj->diff * hit.obj->difTexture->SampleLinear(hit.uv));
 				}
 				else
